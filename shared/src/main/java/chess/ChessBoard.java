@@ -77,6 +77,18 @@ public class ChessBoard {
     }
 
     /**
+     * Returns true if there is an enemy piece at the specified position, otherwise false
+     *
+     * @param position The position to check
+     * @return Returns true if there is a piece at the specified position, otherwise false
+     */
+    public boolean isEnemyPiece(ChessPosition position, ChessGame.TeamColor pieceColor) {
+        if (squares[rowNumberingSeriesConversion.get(position.getRow())][columnNumberingSeriesConversion.get(position.getColumn())] == null) { return false; }
+
+        return !(pieceColor.toString().equals(squares[rowNumberingSeriesConversion.get(position.getRow())][columnNumberingSeriesConversion.get(position.getColumn())].getTeamColor().toString()));
+    }
+
+    /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */

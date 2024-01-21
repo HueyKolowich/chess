@@ -11,8 +11,11 @@ import java.util.*;
 public class ChessPiece {
     private final PieceType type;
 
+    private final ChessGame.TeamColor pieceColor;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.type = type;
+        this.pieceColor = pieceColor;
     }
 
     /**
@@ -31,7 +34,7 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return this.pieceColor;
     }
 
     /**
@@ -77,52 +80,40 @@ public class ChessPiece {
     private List<int[]> bishopMoves(ChessBoard board, ChessPosition bishopPosition) {
         List<int[]> possibleEndPositions = new ArrayList<int[]>();
 
-//        // TODO These for loops need to be reconfigured to explore (r++, c++)(r++, c--)[etc..] from bishopPosition
-//        // Could we just have four sets of nested for loops run in a series?
-//        for (int r = 8; r > 0; r--) {
-//            for (int c = 1; c < 9; ++c) {
-//                // Is there a blocking piece?
-//                // If yes, break (and break entirely from the exploration of both r and c)
-//                // Otherwise, continue
-//                //
-//                // Is there a piece here? (Can chesspiece call chessboard for this information?)
-//                // Cases:
-//                // There is a piece here - it can be captured, we must break from all exploration
-//                // No piece here - We would have already broken earlier and so this position can be added to possibleEndPositions
-//                //
-//
-//                // The absolute value of the difference between bishopPosition's row and column and r & c must be equivalent for it to be a valid bishop move
-//                if (Math.abs(bishopPosition.getRow() - r) == Math.abs(bishopPosition.getColumn() - c)) {
-//                    // Removing the current bishop position from the list TODO this can be more efficiently done outside (after) of the loops I think
-//                    if (!((Math.abs(bishopPosition.getRow() - r) == 0) && (Math.abs(bishopPosition.getColumn() - c) == 0))) {
-//                        possibleEndPositions.add(new int[]{r, c});
-//                    }
-//                }
-//            }
-//        }
-
         for (int r = bishopPosition.getRow() + 1, c = bishopPosition.getColumn() + 1; ((r < 9) && (c < 9)); r++, c++) {
             possibleEndPositions.add(new int[]{r, c});
 
-            if (board.isPiece(new ChessPosition(r, c))) { break; }
+            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
         }
 
         for (int r = bishopPosition.getRow() + 1, c = bishopPosition.getColumn() - 1; ((r < 9) && (c > 0)); r++, c--) {
             possibleEndPositions.add(new int[]{r, c});
 
-            if (board.isPiece(new ChessPosition(r, c))) { break; }
+            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
         }
 
         for (int r = bishopPosition.getRow() - 1, c = bishopPosition.getColumn() + 1; ((r > 0) && (c < 9)); r--, c++) {
             possibleEndPositions.add(new int[]{r, c});
 
-            if (board.isPiece(new ChessPosition(r, c))) { break; }
+            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
         }
 
         for (int r = bishopPosition.getRow() - 1, c = bishopPosition.getColumn() - 1; ((r > 0) && (c > 0)); r--, c--) {
             possibleEndPositions.add(new int[]{r, c});
 
-            if (board.isPiece(new ChessPosition(r, c))) { break; }
+            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
         }
 
         return possibleEndPositions;
