@@ -90,13 +90,12 @@ public class ChessBoard {
 
     /**
      * Returns an int describing the edge status of a chess piece.
-     *
      * """
      *    |1|2|2|2|2|2|2|3|
      *    |8| | | | | | |4|
      *    |8| | | | | | |4|
      *    |8| | |-1| | | |4|
-     *    |8| | | |-1 | | |4|
+     *    |8| | | |-1| | |4|
      *    |8| | | | | | |4|
      *    |8| | | | | | |4|
      *    |7|6|6|6|6|6|6|5|

@@ -63,6 +63,9 @@ public class ChessPiece {
             case KING -> {
                 possibleEndPositions = kingMoves(board, myPosition);
             }
+            case KNIGHT -> {
+                possibleEndPositions = knightMoves(board, myPosition);
+            }
             default -> {
                 return new ArrayList<>();
             }
@@ -128,35 +131,69 @@ public class ChessPiece {
         int edgeStatus = board.isEdgePiece(kingPosition);
 
         if (!(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3) && !(edgeStatus == 4) && !(edgeStatus == 5)) {
-            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() + 1, kingPosition.getColumn() + 1));
+            possibleEndPositions.addAll(singleMoveHelper(board, kingPosition.getRow() + 1, kingPosition.getColumn() + 1));
         }
         if (!(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3) && !(edgeStatus == 7) && !(edgeStatus == 8)) {
-            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() + 1, kingPosition.getColumn() - 1));
+            possibleEndPositions.addAll(singleMoveHelper(board, kingPosition.getRow() + 1, kingPosition.getColumn() - 1));
         }
         if (!(edgeStatus == 3) && !(edgeStatus == 4) && !(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7)) {
-            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() - 1, kingPosition.getColumn() + 1));
+            possibleEndPositions.addAll(singleMoveHelper(board, kingPosition.getRow() - 1, kingPosition.getColumn() + 1));
         }
         if (!(edgeStatus == 1) && !(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7) && !(edgeStatus == 8)) {
-            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() - 1, kingPosition.getColumn() - 1));
+            possibleEndPositions.addAll(singleMoveHelper(board, kingPosition.getRow() - 1, kingPosition.getColumn() - 1));
         }
 
         if (!(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3)) {
-            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() + 1, kingPosition.getColumn()));
+            possibleEndPositions.addAll(singleMoveHelper(board, kingPosition.getRow() + 1, kingPosition.getColumn()));
         }
         if (!(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7)) {
-            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() - 1, kingPosition.getColumn()));
+            possibleEndPositions.addAll(singleMoveHelper(board, kingPosition.getRow() - 1, kingPosition.getColumn()));
         }
         if (!(edgeStatus == 3) && !(edgeStatus == 4) && !(edgeStatus == 5)) {
-            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow(), kingPosition.getColumn() + 1));
+            possibleEndPositions.addAll(singleMoveHelper(board, kingPosition.getRow(), kingPosition.getColumn() + 1));
         }
         if (!(edgeStatus == 1)  && !(edgeStatus == 7) && !(edgeStatus == 8)) {
-            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow(), kingPosition.getColumn() - 1));
+            possibleEndPositions.addAll(singleMoveHelper(board, kingPosition.getRow(), kingPosition.getColumn() - 1));
         }
 
         return possibleEndPositions;
     }
 
-    private List<int[]> kingMoveHelper(ChessBoard board, int row, int column) {
+    public List<int[]> knightMoves(ChessBoard board, ChessPosition knightPosition) {
+        List<int[]> possibleEndPositions = new ArrayList<int[]>();
+
+        if (knightPosition.getRow() + 2 <= 8 && knightPosition.getColumn() + 1 <= 8) {
+            possibleEndPositions.addAll(singleMoveHelper(board, knightPosition.getRow() + 2, knightPosition.getColumn() + 1));
+        }
+        if (knightPosition.getRow() + 1 <= 8 && knightPosition.getColumn() + 2 <= 8) {
+            possibleEndPositions.addAll(singleMoveHelper(board, knightPosition.getRow() + 1, knightPosition.getColumn() + 2));
+        }
+
+        if (knightPosition.getRow() - 1 >= 1 && knightPosition.getColumn() + 2 <= 8) {
+            possibleEndPositions.addAll(singleMoveHelper(board, knightPosition.getRow() - 1, knightPosition.getColumn() + 2));
+        }
+        if (knightPosition.getRow() - 2 >= 1 && knightPosition.getColumn() + 1 <= 8) {
+            possibleEndPositions.addAll(singleMoveHelper(board, knightPosition.getRow() - 2, knightPosition.getColumn() + 1));
+        }
+
+        if (knightPosition.getRow() - 2 >= 1 && knightPosition.getColumn() - 1 >= 1) {
+            possibleEndPositions.addAll(singleMoveHelper(board, knightPosition.getRow() - 2, knightPosition.getColumn() - 1));
+        }
+        if (knightPosition.getRow() - 1 >= 1 && knightPosition.getColumn() - 2 >= 1) {
+            possibleEndPositions.addAll(singleMoveHelper(board, knightPosition.getRow() - 1, knightPosition.getColumn() - 2));
+        }
+
+        if (knightPosition.getRow() + 1 <= 8 && knightPosition.getColumn() - 2 >= 1) {
+            possibleEndPositions.addAll(singleMoveHelper(board, knightPosition.getRow() + 1, knightPosition.getColumn() - 2));
+        }
+        if (knightPosition.getRow() + 2 <= 8 && knightPosition.getColumn() - 1 >= 1) {
+            possibleEndPositions.addAll(singleMoveHelper(board, knightPosition.getRow() + 2, knightPosition.getColumn() - 1));
+        }
+
+        return possibleEndPositions;
+    }
+
+    private List<int[]> singleMoveHelper(ChessBoard board, int row, int column) {
         List<int[]> possibleEndPositions = new ArrayList<int[]>();
 
         if (board.isPiece(new ChessPosition(row, column))) {
