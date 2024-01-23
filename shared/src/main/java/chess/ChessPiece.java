@@ -69,6 +69,9 @@ public class ChessPiece {
             case PAWN -> {
                 possibleEndPositions = pawnMoves(board, myPosition);
             }
+            case QUEEN -> {
+                possibleEndPositions = queenMoves(board, myPosition);
+            }
             default -> {
                 return new ArrayList<>();
             }
@@ -81,12 +84,6 @@ public class ChessPiece {
         return pieceMoves;
     }
 
-    /**
-     * Calculates all the positions a bishop piece can move to
-     *
-     * @param bishopPosition
-     * @return List of int[] of possible bishop positions
-     */
     private List<int[]> bishopMoves(ChessBoard board, ChessPosition bishopPosition) {
         List<int[]> possibleEndPositions = new ArrayList<int[]>();
 
@@ -121,6 +118,85 @@ public class ChessPiece {
             possibleEndPositions.add(new int[]{r, c});
 
             if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
+        }
+
+        return possibleEndPositions;
+    }
+
+    private List<int[]> queenMoves(ChessBoard board, ChessPosition queenPosition) {
+        List<int[]> possibleEndPositions = new ArrayList<>();
+
+        for (int r = queenPosition.getRow() + 1, c = queenPosition.getColumn() + 1; ((r < 9) && (c < 9)); r++, c++) {
+            possibleEndPositions.add(new int[]{r, c});
+
+            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
+        }
+
+        for (int r = queenPosition.getRow() + 1, c = queenPosition.getColumn() - 1; ((r < 9) && (c > 0)); r++, c--) {
+            possibleEndPositions.add(new int[]{r, c});
+
+            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
+        }
+
+        for (int r = queenPosition.getRow() - 1, c = queenPosition.getColumn() + 1; ((r > 0) && (c < 9)); r--, c++) {
+            possibleEndPositions.add(new int[]{r, c});
+
+            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
+        }
+
+        for (int r = queenPosition.getRow() - 1, c = queenPosition.getColumn() - 1; ((r > 0) && (c > 0)); r--, c--) {
+            possibleEndPositions.add(new int[]{r, c});
+
+            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
+        }
+
+
+        for (int r = queenPosition.getRow() + 1; (r < 9); r++) {
+            possibleEndPositions.add(new int[]{r, queenPosition.getColumn()});
+
+            if (board.isEnemyPiece(new ChessPosition(r, queenPosition.getColumn()), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, queenPosition.getColumn()))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
+        }
+
+        for (int r = queenPosition.getRow() - 1; (r > 0); r--) {
+            possibleEndPositions.add(new int[]{r, queenPosition.getColumn()});
+
+            if (board.isEnemyPiece(new ChessPosition(r, queenPosition.getColumn()), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, queenPosition.getColumn()))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
+        }
+
+        for (int c = queenPosition.getColumn() + 1; (c < 9); c++) {
+            possibleEndPositions.add(new int[]{queenPosition.getRow(), c});
+
+            if (board.isEnemyPiece(new ChessPosition(queenPosition.getRow(), c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(queenPosition.getRow(), c))) {
+                possibleEndPositions.removeLast();
+                break;
+            }
+        }
+
+        for (int c = queenPosition.getColumn() - 1; (c > 0); c--) {
+            possibleEndPositions.add(new int[]{queenPosition.getRow(), c});
+
+            if (board.isEnemyPiece(new ChessPosition(queenPosition.getRow(), c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(queenPosition.getRow(), c))) {
                 possibleEndPositions.removeLast();
                 break;
             }
