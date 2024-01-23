@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class ChessBoard {
 
-    private final ChessPiece[][] squares = new ChessPiece[8][8]; //TODO Would it be smart to build a map here to map all requests to the board from the players numbering to the computers numbering?
+    private final ChessPiece[][] squares = new ChessPiece[8][8];
 
     private final HashMap<Integer, Integer> rowNumberingSeriesConversion = new HashMap<Integer, Integer>() {{
         put(1, 7);
@@ -86,6 +86,59 @@ public class ChessBoard {
         if (squares[rowNumberingSeriesConversion.get(position.getRow())][columnNumberingSeriesConversion.get(position.getColumn())] == null) { return false; }
 
         return !(pieceColor.toString().equals(squares[rowNumberingSeriesConversion.get(position.getRow())][columnNumberingSeriesConversion.get(position.getColumn())].getTeamColor().toString()));
+    }
+
+    /**
+     * Returns an int describing the edge status of a chess piece.
+     *
+     * """
+     *    |1|2|2|2|2|2|2|3|
+     *    |8| | | | | | |4|
+     *    |8| | | | | | |4|
+     *    |8| | |-1| | | |4|
+     *    |8| | | |-1 | | |4|
+     *    |8| | | | | | |4|
+     *    |8| | | | | | |4|
+     *    |7|6|6|6|6|6|6|5|
+     *    """
+     *
+     * @param position the position of the chess piece
+     * @return Returns an int describing the edge status of a chess piece.
+     */
+    public int isEdgePiece(ChessPosition position) {
+        if (rowNumberingSeriesConversion.get(position.getRow()) == 0) {
+            if (columnNumberingSeriesConversion.get(position.getColumn()) == 0) {
+                return 1;
+            } else if (columnNumberingSeriesConversion.get(position.getColumn()) == 7) {
+                return 3;
+            } else { return 2; }
+        }
+
+        if (columnNumberingSeriesConversion.get(position.getColumn()) == 7) {
+            if (rowNumberingSeriesConversion.get(position.getRow()) == 0) {
+                return 3;
+            } else if (rowNumberingSeriesConversion.get(position.getColumn()) == 7) {
+                return 5;
+            } else { return 4; }
+        }
+
+        if (rowNumberingSeriesConversion.get(position.getRow()) == 7) {
+            if (columnNumberingSeriesConversion.get(position.getColumn()) == 0) {
+                return 7;
+            } else if (columnNumberingSeriesConversion.get(position.getColumn()) == 7) {
+                return 5;
+            } else { return 6; }
+        }
+
+        if (columnNumberingSeriesConversion.get(position.getColumn()) == 0) {
+            if (rowNumberingSeriesConversion.get(position.getRow()) == 0) {
+                return 1;
+            } else if (rowNumberingSeriesConversion.get(position.getColumn()) == 7) {
+                return 7;
+            } else { return 8; }
+        }
+
+        return -1;
     }
 
     /**

@@ -53,22 +53,26 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> pieceMoves = new HashSet<ChessMove>();
+        List<int[]> possibleEndPositions;
 
         // Could make a separate interface that is a piece moves calculator and have the different pieces inherit from it
         switch (type) {
             case BISHOP -> {
-                List<int[]> possibleEndPositions = bishopMoves(board, myPosition);
-
-                for (int[] possibleEndPosition : possibleEndPositions) {
-                    pieceMoves.add(new ChessMove(myPosition, new ChessPosition(possibleEndPosition[0], possibleEndPosition[1]), null));
-                }
-
-                return pieceMoves;
+                possibleEndPositions = bishopMoves(board, myPosition);
+            }
+            case KING -> {
+                possibleEndPositions = kingMoves(board, myPosition);
             }
             default -> {
                 return new ArrayList<>();
             }
         }
+
+        for (int[] possibleEndPosition : possibleEndPositions) {
+            pieceMoves.add(new ChessMove(myPosition, new ChessPosition(possibleEndPosition[0], possibleEndPosition[1]), null));
+        }
+
+        return pieceMoves;
     }
 
     /**
@@ -118,4 +122,51 @@ public class ChessPiece {
 
         return possibleEndPositions;
     }
+
+    private List<int[]> kingMoves(ChessBoard board, ChessPosition kingPosition) {
+        List<int[]> possibleEndPositions = new ArrayList<int[]>();
+        int edgeStatus = board.isEdgePiece(kingPosition);
+
+        if (!(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3) && !(edgeStatus == 4) && !(edgeStatus == 5)) {
+            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() + 1, kingPosition.getColumn() + 1));
+        }
+        if (!(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3) && !(edgeStatus == 7) && !(edgeStatus == 8)) {
+            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() + 1, kingPosition.getColumn() - 1));
+        }
+        if (!(edgeStatus == 3) && !(edgeStatus == 4) && !(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7)) {
+            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() - 1, kingPosition.getColumn() + 1));
+        }
+        if (!(edgeStatus == 1) && !(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7) && !(edgeStatus == 8)) {
+            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() - 1, kingPosition.getColumn() - 1));
+        }
+
+        if (!(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3)) {
+            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() + 1, kingPosition.getColumn()));
+        }
+        if (!(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7)) {
+            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow() - 1, kingPosition.getColumn()));
+        }
+        if (!(edgeStatus == 3) && !(edgeStatus == 4) && !(edgeStatus == 5)) {
+            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow(), kingPosition.getColumn() + 1));
+        }
+        if (!(edgeStatus == 1)  && !(edgeStatus == 7) && !(edgeStatus == 8)) {
+            possibleEndPositions.addAll(kingMoveHelper(board, kingPosition.getRow(), kingPosition.getColumn() - 1));
+        }
+
+        return possibleEndPositions;
+    }
+
+    private List<int[]> kingMoveHelper(ChessBoard board, int row, int column) {
+        List<int[]> possibleEndPositions = new ArrayList<int[]>();
+
+        if (board.isPiece(new ChessPosition(row, column))) {
+            if (board.isEnemyPiece(new ChessPosition(row, column), this.pieceColor)) {
+                possibleEndPositions.add(new int[]{row, column});
+            }
+        } else { possibleEndPositions.add(new int[]{row, column}); }
+
+        return possibleEndPositions;
+    }
 }
+
+
