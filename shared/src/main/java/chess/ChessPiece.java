@@ -66,6 +66,9 @@ public class ChessPiece {
             case KNIGHT -> {
                 possibleEndPositions = knightMoves(board, myPosition);
             }
+            case PAWN -> {
+                possibleEndPositions = pawnMoves(board, myPosition);
+            }
             default -> {
                 return new ArrayList<>();
             }
@@ -159,7 +162,7 @@ public class ChessPiece {
         return possibleEndPositions;
     }
 
-    public List<int[]> knightMoves(ChessBoard board, ChessPosition knightPosition) {
+    private List<int[]> knightMoves(ChessBoard board, ChessPosition knightPosition) {
         List<int[]> possibleEndPositions = new ArrayList<int[]>();
 
         if (knightPosition.getRow() + 2 <= 8 && knightPosition.getColumn() + 1 <= 8) {
@@ -188,6 +191,51 @@ public class ChessPiece {
         }
         if (knightPosition.getRow() + 2 <= 8 && knightPosition.getColumn() - 1 >= 1) {
             possibleEndPositions.addAll(singleMoveHelper(board, knightPosition.getRow() + 2, knightPosition.getColumn() - 1));
+        }
+
+        return possibleEndPositions;
+    }
+
+    private List<int []> pawnMoves(ChessBoard board, ChessPosition pawnPosition) {
+        List<int[]> possibleEndPositions = new ArrayList<int[]>();
+        int edgeStatus = board.isEdgePiece(pawnPosition);
+
+        // Special cases for initial moves
+        if (!(this.pieceColor.toString().equals("BLACK")) && !(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3) && pawnPosition.getRow() == 2) {
+            if (!(board.isPiece(new ChessPosition(pawnPosition.getRow() + 1, pawnPosition.getColumn())))) {
+                possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() + 1, pawnPosition.getColumn()));
+
+                if (!(board.isPiece(new ChessPosition(pawnPosition.getRow() + 2, pawnPosition.getColumn())))) { possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() + 2, pawnPosition.getColumn())); }
+            }
+        }
+        if (!(this.pieceColor.toString().equals("WHITE")) && !(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7) && pawnPosition.getRow() == 7) {
+            if (!(board.isPiece(new ChessPosition(pawnPosition.getRow() - 1, pawnPosition.getColumn())))) {
+                possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() - 1, pawnPosition.getColumn()));
+
+                if (!(board.isPiece(new ChessPosition(pawnPosition.getRow() - 2, pawnPosition.getColumn())))) { possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() - 2, pawnPosition.getColumn())); }
+            }
+        }
+
+        // Cases for capturing
+        if (!(this.pieceColor.toString().equals("BLACK")) && !(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3) && !(edgeStatus == 4) && !(edgeStatus == 5)) {
+            if (board.isEnemyPiece(new ChessPosition(pawnPosition.getRow() + 1, pawnPosition.getColumn() + 1), this.pieceColor)) { possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() + 1, pawnPosition.getColumn() + 1)); }
+        }
+        if (!(this.pieceColor.toString().equals("BLACK")) && !(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3) && !(edgeStatus == 7) && !(edgeStatus == 8)) {
+            if (board.isEnemyPiece(new ChessPosition(pawnPosition.getRow() + 1, pawnPosition.getColumn() - 1), this.pieceColor)) { possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() + 1, pawnPosition.getColumn() - 1)); }
+        }
+        if (!(this.pieceColor.toString().equals("WHITE")) && !(edgeStatus == 3) && !(edgeStatus == 4) && !(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7)) {
+            if (board.isEnemyPiece(new ChessPosition(pawnPosition.getRow() - 1, pawnPosition.getColumn() + 1), this.pieceColor)) { possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() - 1, pawnPosition.getColumn() + 1)); }
+        }
+        if (!(this.pieceColor.toString().equals("WHITE")) && !(edgeStatus == 1) && !(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7) && !(edgeStatus == 8)) {
+            if (board.isEnemyPiece(new ChessPosition(pawnPosition.getRow() - 1, pawnPosition.getColumn() - 1), this.pieceColor)) { possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() - 1, pawnPosition.getColumn() - 1)); }
+        }
+
+        // Normal move cases
+        if (!(this.pieceColor.toString().equals("BLACK")) && !(edgeStatus == 1) && !(edgeStatus == 2) && !(edgeStatus == 3)) {
+            if (!(board.isPiece(new ChessPosition(pawnPosition.getRow() + 1, pawnPosition.getColumn())))) { possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() + 1, pawnPosition.getColumn())); }
+        }
+        if (!(this.pieceColor.toString().equals("WHITE")) && !(edgeStatus == 5) && !(edgeStatus == 6) && !(edgeStatus == 7)) {
+            if (!(board.isPiece(new ChessPosition(pawnPosition.getRow() - 1, pawnPosition.getColumn())))) { possibleEndPositions.addAll(singleMoveHelper(board, pawnPosition.getRow() - 1, pawnPosition.getColumn())); }
         }
 
         return possibleEndPositions;
