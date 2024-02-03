@@ -53,9 +53,6 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        int pr = position.getRow();
-        Integer r = rowNumberingSeriesConversion.get(position.getRow());
-
         squares[rowNumberingSeriesConversion.get((Integer) position.getRow())][columnNumberingSeriesConversion.get((Integer) position.getColumn())] = piece;
     }
 
