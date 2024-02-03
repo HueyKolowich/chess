@@ -13,9 +13,13 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
 
+    private final BishopMoveCalculator bishopMoveCalculator;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.type = type;
         this.pieceColor = pieceColor;
+
+        bishopMoveCalculator = new BishopMoveCalculator();
     }
 
     /**
@@ -55,10 +59,9 @@ public class ChessPiece {
         HashSet<ChessMove> pieceMoves = new HashSet<ChessMove>();
         List<int[]> possibleEndPositions = null;
 
-        //TODO build a separate interface that is a piece moves calculator and have the different pieces inherit from it
         switch (type) {
             case BISHOP -> {
-                possibleEndPositions = bishopMoves(board, myPosition);
+                possibleEndPositions = bishopMoveCalculator.possibleEndPositionCalculator(board, myPosition, this.pieceColor);
             }
             case KING -> {
                 possibleEndPositions = kingMoves(board, myPosition);
@@ -115,48 +118,6 @@ public class ChessPiece {
         }
 
         return pieceMoves;
-    }
-
-    private List<int[]> bishopMoves(ChessBoard board, ChessPosition bishopPosition) {
-        List<int[]> possibleEndPositions = new ArrayList<int[]>();
-
-        for (int r = bishopPosition.getRow() + 1, c = bishopPosition.getColumn() + 1; ((r < 9) && (c < 9)); r++, c++) {
-            possibleEndPositions.add(new int[]{r, c});
-
-            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
-                possibleEndPositions.removeLast();
-                break;
-            }
-        }
-
-        for (int r = bishopPosition.getRow() + 1, c = bishopPosition.getColumn() - 1; ((r < 9) && (c > 0)); r++, c--) {
-            possibleEndPositions.add(new int[]{r, c});
-
-            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
-                possibleEndPositions.removeLast();
-                break;
-            }
-        }
-
-        for (int r = bishopPosition.getRow() - 1, c = bishopPosition.getColumn() + 1; ((r > 0) && (c < 9)); r--, c++) {
-            possibleEndPositions.add(new int[]{r, c});
-
-            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
-                possibleEndPositions.removeLast();
-                break;
-            }
-        }
-
-        for (int r = bishopPosition.getRow() - 1, c = bishopPosition.getColumn() - 1; ((r > 0) && (c > 0)); r--, c--) {
-            possibleEndPositions.add(new int[]{r, c});
-
-            if (board.isEnemyPiece(new ChessPosition(r, c), this.pieceColor)) { break; } else if (board.isPiece(new ChessPosition(r, c))) {
-                possibleEndPositions.removeLast();
-                break;
-            }
-        }
-
-        return possibleEndPositions;
     }
 
     private List<int[]> queenMoves(ChessBoard board, ChessPosition queenPosition) {
