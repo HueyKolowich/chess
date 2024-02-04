@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -106,6 +107,15 @@ public class ChessGame {
         }
 
         //TODO For all the pieces on the opposite team...
+        try {
+            ChessGame.TeamColor oppositeTeamColor;
+            if (teamColor.equals(TeamColor.WHITE)) { oppositeTeamColor = TeamColor.BLACK; }
+            else { oppositeTeamColor = TeamColor.WHITE; }
+
+            HashSet<ChessPiece> oppositeTeamPieces = (HashSet<ChessPiece>) board.getTeamPieces(oppositeTeamColor);
+        } catch (NoPieceException noPieceException) {
+            System.out.printf("No pieces on the opposing team! %s", noPieceException);
+        }
 
         //TODO Check to see if the king position is included in any of their valid moves
 

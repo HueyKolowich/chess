@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -65,6 +62,31 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         return squares[rowNumberingSeriesConversion.get(position.getRow())][columnNumberingSeriesConversion.get(position.getColumn())];
+    }
+
+    /**
+     * Gets all the pieces for a team
+     *
+     * @param teamColor The team in question
+     * @return A HashSet of all tne pieces
+     * @throws NoPieceException If no pieces are found for the specified team
+     */
+    public Collection<ChessPiece> getTeamPieces(ChessGame.TeamColor teamColor) throws NoPieceException {
+        HashSet<ChessPiece> allTeamPieces = new HashSet<ChessPiece>();
+
+        for (int row = 8; row > 0; row--) {
+            for (ChessPiece currentPiece : squares[rowNumberingSeriesConversion.get(row)]) {
+                if (currentPiece.getTeamColor().equals(teamColor)) {
+                    allTeamPieces.add(currentPiece);
+                }
+            }
+        }
+
+        if (allTeamPieces.isEmpty()) {
+            throw new NoPieceException("No pieces found for this team!");
+        } else {
+            return allTeamPieces;
+        }
     }
 
     /**
