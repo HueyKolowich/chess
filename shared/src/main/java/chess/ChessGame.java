@@ -99,7 +99,17 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        try {
+            ChessPosition kingPosition = board.getKingPosition(teamColor);
+        } catch (NoPieceException noPieceException) {
+            System.out.printf("Missing King! %s", noPieceException);
+        }
+
+        //TODO For all the pieces on the opposite team...
+
+        //TODO Check to see if the king position is included in any of their valid moves
+
+        return false;
     }
 
     /**

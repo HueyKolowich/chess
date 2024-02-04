@@ -68,6 +68,26 @@ public class ChessBoard {
     }
 
     /**
+     * Finds the king's position on the board
+     *
+     * @param teamColor The team who's king's position is needed
+     * @return A new ChessPosition with the King's position
+     * @throws NoPieceException If no king is found on the board for that team
+     */
+    public ChessPosition getKingPosition(ChessGame.TeamColor teamColor) throws NoPieceException {
+        for (int row = 8; row > 0; row--) {
+            for (int col = 1; col < 9; col++) {
+                if (squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)].getPieceType().equals(ChessPiece.PieceType.KING)
+                && squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)].getTeamColor().equals(teamColor)) {
+                    return new ChessPosition(row, col);
+                }
+            }
+        }
+
+        throw new NoPieceException("No king found for this team!");
+    }
+
+    /**
      * Returns true if there is a piece at the specified position, otherwise false
      *
      * @param position The position to check
