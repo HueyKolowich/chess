@@ -68,16 +68,16 @@ public class ChessBoard {
      * Gets all the pieces for a team
      *
      * @param teamColor The team in question
-     * @return A HashSet of all tne pieces
+     * @return A HashSet of PieceAndPositionTuple containing the pieces and their current positions
      * @throws NoPieceException If no pieces are found for the specified team
      */
-    public Collection<ChessPiece> getTeamPieces(ChessGame.TeamColor teamColor) throws NoPieceException {
-        HashSet<ChessPiece> allTeamPieces = new HashSet<ChessPiece>();
+    public Collection<PieceAndPositionTuple<ChessPiece, ChessPosition>> getTeamPieces(ChessGame.TeamColor teamColor) throws NoPieceException {
+        HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>> allTeamPieces = new HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>>();
 
         for (int row = 8; row > 0; row--) {
-            for (ChessPiece currentPiece : squares[rowNumberingSeriesConversion.get(row)]) {
-                if (currentPiece.getTeamColor().equals(teamColor)) {
-                    allTeamPieces.add(currentPiece);
+            for (int col = 0; col < 8; col++) {
+                if (squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)].getTeamColor().equals(teamColor)) {
+                    allTeamPieces.add(new PieceAndPositionTuple<>(squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)], new ChessPosition(row, col)));
                 }
             }
         }

@@ -112,7 +112,11 @@ public class ChessGame {
             if (teamColor.equals(TeamColor.WHITE)) { oppositeTeamColor = TeamColor.BLACK; }
             else { oppositeTeamColor = TeamColor.WHITE; }
 
-            HashSet<ChessPiece> oppositeTeamPieces = (HashSet<ChessPiece>) board.getTeamPieces(oppositeTeamColor);
+            HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>> oppositeTeamPieces = (HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>>) board.getTeamPieces(oppositeTeamColor);
+
+            for (PieceAndPositionTuple<ChessPiece, ChessPosition> oppositeTeamPiece : oppositeTeamPieces) {
+                oppositeTeamPiece.getPiece().pieceMoves(this.board, oppositeTeamPiece.getPosition());
+            }
         } catch (NoPieceException noPieceException) {
             System.out.printf("No pieces on the opposing team! %s", noPieceException);
         }
