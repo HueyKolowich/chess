@@ -10,24 +10,11 @@ import java.util.Collection;
  */
 public class ChessGame {
 
+    private ChessBoard board;
+    private ChessGame.TeamColor currentTurn;
+
     public ChessGame() {
-
-    }
-
-    /**
-     * @return Which team's turn it is
-     */
-    public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
-    }
-
-    /**
-     * Set's which teams turn it is
-     *
-     * @param team the team whose turn it is
-     */
-    public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        this.currentTurn = TeamColor.WHITE;
     }
 
     /**
@@ -41,6 +28,22 @@ public class ChessGame {
         public String toString() {
             return this.name();
         }
+    }
+
+    /**
+     * @return Which team's turn it is
+     */
+    public TeamColor getTeamTurn() {
+        return this.currentTurn;
+    }
+
+    /**
+     * Set's which teams turn it is
+     *
+     * @param team the team whose turn it is
+     */
+    public void setTeamTurn(TeamColor team) {
+        this.currentTurn = team;
     }
 
     /**
@@ -61,7 +64,32 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPiece currentPiece = board.getPiece(move.getStartPosition());
+
+        //TODO Is it the correct team's turn to make a move?
+        if (!currentPiece.getTeamColor().equals(currentTurn)) {
+            throw new InvalidMoveException("It is the other team's turn to move");
+        }
+
+        //TODO First ensure that there is piece at the start position in move
+        if (!board.isPiece(move.getStartPosition())) {
+            throw new InvalidMoveException("There is no piece at the startPosition of this move!");
+        }
+
+        //TODO Need to check using the chess piece at the startposition if the end position is included in the valid moves
+        if (!currentPiece.pieceMoves(board, move.getStartPosition()).contains(move)) {
+            throw new InvalidMoveException("This move is not a valid move for this chess piece!");
+        }
+
+        //TODO Add new piece at endposition
+        board.addPiece(move.getEndPosition(), currentPiece);
+
+        //TODO Clear the piece on the board at start position
+        board.addPiece(move.getStartPosition(), null);
+
+        //TODO Change the current team's turn
+        if (currentTurn.equals(TeamColor.WHITE)) { setTeamTurn(TeamColor.BLACK); }
+        else { setTeamTurn(TeamColor.WHITE); }
     }
 
     /**
@@ -101,7 +129,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -110,6 +138,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return this.board;
     }
 }
