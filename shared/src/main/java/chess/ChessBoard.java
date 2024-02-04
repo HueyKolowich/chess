@@ -71,13 +71,15 @@ public class ChessBoard {
      * @return A HashSet of PieceAndPositionTuple containing the pieces and their current positions
      * @throws NoPieceException If no pieces are found for the specified team
      */
-    public Collection<PieceAndPositionTuple<ChessPiece, ChessPosition>> getTeamPieces(ChessGame.TeamColor teamColor) throws NoPieceException {
+    public HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>> getTeamPieces(ChessGame.TeamColor teamColor) throws NoPieceException {
         HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>> allTeamPieces = new HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>>();
 
         for (int row = 8; row > 0; row--) {
-            for (int col = 0; col < 8; col++) {
-                if (squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)].getTeamColor().equals(teamColor)) {
-                    allTeamPieces.add(new PieceAndPositionTuple<>(squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)], new ChessPosition(row, col)));
+            for (int col = 1; col < 9; col++) {
+                if (squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)] != null) {
+                    if (squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)].getTeamColor().equals(teamColor)) {
+                        allTeamPieces.add(new PieceAndPositionTuple<>(squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)], new ChessPosition(row, col)));
+                    }
                 }
             }
         }
@@ -99,9 +101,11 @@ public class ChessBoard {
     public ChessPosition getKingPosition(ChessGame.TeamColor teamColor) throws NoPieceException {
         for (int row = 8; row > 0; row--) {
             for (int col = 1; col < 9; col++) {
-                if (squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)].getPieceType().equals(ChessPiece.PieceType.KING)
-                && squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)].getTeamColor().equals(teamColor)) {
-                    return new ChessPosition(row, col);
+                if (squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)] != null) {
+                    if (squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)].getPieceType().equals(ChessPiece.PieceType.KING)
+                            && squares[rowNumberingSeriesConversion.get(row)][columnNumberingSeriesConversion.get(col)].getTeamColor().equals(teamColor)) {
+                        return new ChessPosition(row, col);
+                    }
                 }
             }
         }

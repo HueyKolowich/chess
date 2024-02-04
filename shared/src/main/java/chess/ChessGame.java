@@ -100,30 +100,37 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition kingPosition;
+
         try {
-            ChessPosition kingPosition = board.getKingPosition(teamColor);
+            kingPosition = board.getKingPosition(teamColor);
         } catch (NoPieceException noPieceException) {
             System.out.printf("Missing King! %s", noPieceException);
+            kingPosition = null;
         }
 
-        //TODO For all the pieces on the opposite team...
         try {
             ChessGame.TeamColor oppositeTeamColor;
             if (teamColor.equals(TeamColor.WHITE)) { oppositeTeamColor = TeamColor.BLACK; }
             else { oppositeTeamColor = TeamColor.WHITE; }
 
-            HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>> oppositeTeamPieces = (HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>>) board.getTeamPieces(oppositeTeamColor);
+            HashSet<PieceAndPositionTuple<ChessPiece, ChessPosition>> oppositeTeamPieces = board.getTeamPieces(oppositeTeamColor);
 
             for (PieceAndPositionTuple<ChessPiece, ChessPosition> oppositeTeamPiece : oppositeTeamPieces) {
                 oppositeTeamPiece.getPiece().pieceMoves(this.board, oppositeTeamPiece.getPosition());
+
+                for (ChessMove move : oppositeTeamPiece.getPiece().pieceMoves(this.board, oppositeTeamPiece.getPosition())) {
+                    if (move.getEndPosition().equals(kingPosition)) {
+                        return true;
+                    }
+                }
             }
+
+            return false;
         } catch (NoPieceException noPieceException) {
             System.out.printf("No pieces on the opposing team! %s", noPieceException);
+            return false;
         }
-
-        //TODO Check to see if the king position is included in any of their valid moves
-
-        return false;
     }
 
     /**
