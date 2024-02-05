@@ -12,6 +12,7 @@ import java.util.HashSet;
 public class ChessGame {
 
     private ChessBoard board;
+    private ChessBoard tempBoard = null;
     private ChessGame.TeamColor currentTurn;
 
     public ChessGame() {
@@ -29,6 +30,10 @@ public class ChessGame {
         public String toString() {
             return this.name();
         }
+    }
+
+    private void changeBoard(ChessBoard board) {
+        this.board = board;
     }
 
     /**
@@ -80,6 +85,27 @@ public class ChessGame {
         //TODO Need to check using the chess piece at the startposition if the end position is included in the valid moves
         if (!currentPiece.pieceMoves(board, move.getStartPosition()).contains(move)) {
             throw new InvalidMoveException("This move is not a valid move for this chess piece!");
+        }
+
+        //TODO Is the current team in check? Make a duplicate board and with the move already made and re-evaluate inCheck
+        if (isInCheck(currentTurn)) {
+            ChessBoard simulatedBoard = new ChessBoard(board);
+            ChessPiece simulatedCurrentPiece = simulatedBoard.getPiece(move.getStartPosition());
+
+            simulatedBoard.addPiece(move.getEndPosition(), simulatedCurrentPiece);
+            simulatedBoard.addPiece(move.getStartPosition(), null);
+
+            tempBoard = this.board;
+            changeBoard(simulatedBoard);
+            if (isInCheck(currentTurn)) {
+                changeBoard(tempBoard);
+                tempBoard = null;
+
+                throw new InvalidMoveException("This move did not take the king out of check!");
+            } else {
+                changeBoard(tempBoard);
+                tempBoard = null;
+            }
         }
 
         //TODO Add new piece at endposition

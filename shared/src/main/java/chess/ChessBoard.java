@@ -15,7 +15,7 @@ import java.util.*;
  */
 public class ChessBoard {
 
-    private final ChessPiece[][] squares = new ChessPiece[8][8];
+    private ChessPiece[][] squares = new ChessPiece[8][8];
 
     private final HashMap<Integer, Integer> rowNumberingSeriesConversion = new HashMap<Integer, Integer>() {{
         put(1, 7);
@@ -41,6 +41,12 @@ public class ChessBoard {
 
     public ChessBoard() {
         
+    }
+
+    public ChessBoard(ChessBoard chessBoard) {
+        for (int row = 0; row < 8; row++) {
+            this.squares[row] = Arrays.copyOf(chessBoard.squares[row], chessBoard.squares[row].length);
+        }
     }
 
     /**
