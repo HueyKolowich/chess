@@ -108,15 +108,22 @@ public class ChessGame {
             }
         }
 
-        //TODO Add new piece at endposition
-        board.addPiece(move.getEndPosition(), currentPiece);
+        if (move.getPromotionPiece() != null) {
+            makePromotionalMove(move, currentTurn);
+        } else {
+            board.addPiece(move.getEndPosition(), currentPiece);
 
-        //TODO Clear the piece on the board at start position
-        board.addPiece(move.getStartPosition(), null);
+            board.addPiece(move.getStartPosition(), null);
+        }
 
         //TODO Change the current team's turn
         if (currentTurn.equals(TeamColor.WHITE)) { setTeamTurn(TeamColor.BLACK); }
         else { setTeamTurn(TeamColor.WHITE); }
+    }
+
+    private void makePromotionalMove(ChessMove move, ChessGame.TeamColor currentTeamColor) {
+        board.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor, move.getPromotionPiece()));
+        board.addPiece(move.getStartPosition(), null);
     }
 
     /**
