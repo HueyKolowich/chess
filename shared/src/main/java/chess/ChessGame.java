@@ -242,7 +242,7 @@ public class ChessGame {
 
         try {
             for (PieceAndPositionTuple<ChessPiece, ChessPosition> teamPiece : board.getTeamPieces(teamColor)) {
-
+                if (!validMoves(teamPiece.getPosition()).isEmpty()) { return false; }
             }
         } catch (NoPieceException noPieceException) {
             System.out.printf("No pieces on team! %s", noPieceException);
