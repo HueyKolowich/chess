@@ -27,4 +27,12 @@ public class PieceAndPositionTuple<Piece, Position>{
     public int hashCode() {
         return Objects.hash(piece, position);
     }
+
+    @Override
+    public String toString() {
+        return "PieceAndPositionTuple{" +
+                "piece=" + piece +
+                ", position=" + position +
+                '}';
+    }
 }

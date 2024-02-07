@@ -72,28 +72,36 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece currentPiece = board.getPiece(move.getStartPosition());
 
-        //TODO Is it the correct team's turn to make a move?
         if (!currentPiece.getTeamColor().equals(currentTurn)) {
             throw new InvalidMoveException("It is the other team's turn to move");
         }
 
-        //TODO First ensure that there is piece at the start position in move
         if (!board.isPiece(move.getStartPosition())) {
             throw new InvalidMoveException("There is no piece at the startPosition of this move!");
         }
 
-        //TODO Need to check using the chess piece at the startposition if the end position is included in the valid moves
         if (!currentPiece.pieceMoves(board, move.getStartPosition()).contains(move)) {
             throw new InvalidMoveException("This move is not a valid move for this chess piece!");
         }
 
-        //TODO Is the current team in check? Make a duplicate board and with the move already made and re-evaluate inCheck
+        try {
+            if (board.getKingPosition(flipTeamColor(currentTurn)).equals(move.getEndPosition())) {
+                throw new InvalidMoveException("This move is not a valid move for this chess piece (it is the enemy king)!");
+            }
+        } catch (NoPieceException noPieceException) {
+            System.out.printf("No pieces on the opposing team! %s", noPieceException);
+        }
+
         if (isInCheck(currentTurn)) {
             ChessBoard simulatedBoard = new ChessBoard(board);
             ChessPiece simulatedCurrentPiece = simulatedBoard.getPiece(move.getStartPosition());
 
-            simulatedBoard.addPiece(move.getEndPosition(), simulatedCurrentPiece);
-            simulatedBoard.addPiece(move.getStartPosition(), null);
+            if (move.getPromotionPiece() != null) {
+                makePromotionalMove(move, currentTurn);
+            } else {
+                simulatedBoard.addPiece(move.getEndPosition(), simulatedCurrentPiece);
+                simulatedBoard.addPiece(move.getStartPosition(), null);
+            }
 
             tempBoard = this.board;
             changeBoard(simulatedBoard);
@@ -112,11 +120,9 @@ public class ChessGame {
             makePromotionalMove(move, currentTurn);
         } else {
             board.addPiece(move.getEndPosition(), currentPiece);
-
             board.addPiece(move.getStartPosition(), null);
         }
 
-        //TODO Change the current team's turn
         if (currentTurn.equals(TeamColor.WHITE)) { setTeamTurn(TeamColor.BLACK); }
         else { setTeamTurn(TeamColor.WHITE); }
     }
@@ -173,7 +179,29 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessGame.TeamColor oppositeTeamColor = flipTeamColor(teamColor);
+
+        if (!isInCheck(teamColor)) { return false; }
+
+        try {
+            for (PieceAndPositionTuple<ChessPiece, ChessPosition> oppositeTeamPiece : board.getTeamPieces(oppositeTeamColor)) {
+                for (ChessMove validMove : oppositeTeamPiece.getPiece().pieceMoves(board, oppositeTeamPiece.getPosition())) {
+                    //TODO Here I also need to rule out if the move would take the enemy king
+                    if (validMove.getEndPosition().equals(board.getKingPosition(teamColor))) {
+                        break;
+                    }
+
+                    if (!isInCheckHandler(validMove)) {
+                        return false;
+                    }
+                }
+            }
+        } catch (NoPieceException noPieceException) {
+            System.out.printf("No pieces on the opposing team! %s", noPieceException);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -203,5 +231,40 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    private boolean isInCheckHandler(ChessMove move) {
+        ChessBoard simulatedBoard = new ChessBoard(board);
+        ChessPiece simulatedCurrentPiece = simulatedBoard.getPiece(move.getStartPosition());
+
+        if (move.getPromotionPiece() != null) {
+            makePromotionalMove(move, currentTurn);
+        } else {
+            simulatedBoard.addPiece(move.getEndPosition(), simulatedCurrentPiece);
+            simulatedBoard.addPiece(move.getStartPosition(), null);
+        }
+
+        tempBoard = this.board;
+        changeBoard(simulatedBoard);
+        if (isInCheck(currentTurn)) {
+            changeBoard(tempBoard);
+            tempBoard = null;
+
+            return true;
+        } else {
+            changeBoard(tempBoard);
+            tempBoard = null;
+
+            return false;
+        }
+    }
+
+    private TeamColor flipTeamColor(TeamColor teamColor) {
+        ChessGame.TeamColor oppositeTeamColor;
+
+        if (teamColor.equals(TeamColor.WHITE)) { oppositeTeamColor = TeamColor.BLACK; }
+        else { oppositeTeamColor = TeamColor.WHITE; }
+
+        return oppositeTeamColor;
     }
 }
