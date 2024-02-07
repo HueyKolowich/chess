@@ -179,15 +179,13 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessGame.TeamColor oppositeTeamColor = flipTeamColor(teamColor);
-
         if (!isInCheck(teamColor)) { return false; }
 
         try {
-            for (PieceAndPositionTuple<ChessPiece, ChessPosition> oppositeTeamPiece : board.getTeamPieces(oppositeTeamColor)) {
-                for (ChessMove validMove : oppositeTeamPiece.getPiece().pieceMoves(board, oppositeTeamPiece.getPosition())) {
+            for (PieceAndPositionTuple<ChessPiece, ChessPosition> teamPiece : board.getTeamPieces(teamColor)) {
+                for (ChessMove validMove : teamPiece.getPiece().pieceMoves(board, teamPiece.getPosition())) {
                     //TODO Here I also need to rule out if the move would take the enemy king
-                    if (validMove.getEndPosition().equals(board.getKingPosition(teamColor))) {
+                    if (validMove.getEndPosition().equals(board.getKingPosition(flipTeamColor(teamColor)))) {
                         break;
                     }
 
@@ -197,7 +195,7 @@ public class ChessGame {
                 }
             }
         } catch (NoPieceException noPieceException) {
-            System.out.printf("No pieces on the opposing team! %s", noPieceException);
+            System.out.printf("No pieces on team! %s", noPieceException);
             return false;
         }
 
@@ -238,7 +236,7 @@ public class ChessGame {
         ChessPiece simulatedCurrentPiece = simulatedBoard.getPiece(move.getStartPosition());
 
         if (move.getPromotionPiece() != null) {
-            makePromotionalMove(move, currentTurn);
+            makePromotionalMove(move, flipTeamColor(currentTurn));
         } else {
             simulatedBoard.addPiece(move.getEndPosition(), simulatedCurrentPiece);
             simulatedBoard.addPiece(move.getStartPosition(), null);
