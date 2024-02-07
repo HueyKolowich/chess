@@ -41,7 +41,12 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN
+        PAWN;
+
+        @Override
+        public String toString() {
+            return this.name();
+        }
     }
 
     /**

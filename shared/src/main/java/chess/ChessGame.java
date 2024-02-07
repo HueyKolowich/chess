@@ -60,7 +60,36 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        HashSet<ChessMove> validMoves = new HashSet<>();
+        ChessPiece currentPiece = board.getPiece(startPosition);
+
+        if (currentPiece == null) { return null; }
+
+        for (ChessMove pieceMove : currentPiece.pieceMoves(board, startPosition)) {
+            ChessBoard simulatedBoard = new ChessBoard(board);
+            ChessPiece simulatedCurrentPiece = simulatedBoard.getPiece(pieceMove.getStartPosition());
+
+            if (pieceMove.getPromotionPiece() != null) {
+                makePromotionalMove(pieceMove, simulatedCurrentPiece.getTeamColor());
+            } else {
+                simulatedBoard.addPiece(pieceMove.getEndPosition(), simulatedCurrentPiece);
+                simulatedBoard.addPiece(pieceMove.getStartPosition(), null);
+            }
+
+            tempBoard = this.board;
+            changeBoard(simulatedBoard);
+            if (!isInCheck(simulatedCurrentPiece.getTeamColor())) {
+                changeBoard(tempBoard);
+                tempBoard = null;
+
+                validMoves.add(pieceMove);
+            } else {
+                changeBoard(tempBoard);
+                tempBoard = null;
+            }
+        }
+
+        return validMoves;
     }
 
     /**
@@ -184,7 +213,6 @@ public class ChessGame {
         try {
             for (PieceAndPositionTuple<ChessPiece, ChessPosition> teamPiece : board.getTeamPieces(teamColor)) {
                 for (ChessMove validMove : teamPiece.getPiece().pieceMoves(board, teamPiece.getPosition())) {
-                    //TODO Here I also need to rule out if the move would take the enemy king
                     if (validMove.getEndPosition().equals(board.getKingPosition(flipTeamColor(teamColor)))) {
                         break;
                     }
@@ -210,7 +238,18 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) { return false; }
+
+        try {
+            for (PieceAndPositionTuple<ChessPiece, ChessPosition> teamPiece : board.getTeamPieces(teamColor)) {
+
+            }
+        } catch (NoPieceException noPieceException) {
+            System.out.printf("No pieces on team! %s", noPieceException);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -236,7 +275,7 @@ public class ChessGame {
         ChessPiece simulatedCurrentPiece = simulatedBoard.getPiece(move.getStartPosition());
 
         if (move.getPromotionPiece() != null) {
-            makePromotionalMove(move, flipTeamColor(currentTurn));
+            makePromotionalMove(move, currentTurn);
         } else {
             simulatedBoard.addPiece(move.getEndPosition(), simulatedCurrentPiece);
             simulatedBoard.addPiece(move.getStartPosition(), null);
