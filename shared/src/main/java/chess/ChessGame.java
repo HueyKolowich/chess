@@ -70,7 +70,7 @@ public class ChessGame {
             ChessPiece simulatedCurrentPiece = simulatedBoard.getPiece(pieceMove.getStartPosition());
 
             if (pieceMove.getPromotionPiece() != null) {
-                makePromotionalMove(pieceMove, simulatedCurrentPiece.getTeamColor());
+                makePromotionalMove(pieceMove, currentPiece.getTeamColor());
             } else {
                 simulatedBoard.addPiece(pieceMove.getEndPosition(), simulatedCurrentPiece);
                 simulatedBoard.addPiece(pieceMove.getStartPosition(), null);
@@ -78,7 +78,7 @@ public class ChessGame {
 
             tempBoard = this.board;
             changeBoard(simulatedBoard);
-            if (!isInCheck(simulatedCurrentPiece.getTeamColor())) {
+            if (!isInCheck(currentPiece.getTeamColor())) {
                 changeBoard(tempBoard);
                 tempBoard = null;
 
