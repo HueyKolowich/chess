@@ -1,8 +1,12 @@
 package server;
 
+import com.google.gson.Gson;
+import service.RegistrationService;
+import model.User;
 import spark.*;
 
 public class Server {
+    private final RegistrationService registrationService = new RegistrationService();
 
     public static void main(String[] args) {
         new Server().run(8080);
@@ -30,6 +34,7 @@ public class Server {
     }
 
     private Object register(Request request, Response response) {
-        return null;
+        var user = new Gson().fromJson(request.body(), User.class);
+        return new Gson().toJson(user);
     }
 }
