@@ -31,9 +31,4 @@ public class MemoryUserDao implements UserDao {
     public void createUser(UserData user) {
         MemoryUserDao.users.put(user.username(), user);
     }
-
-    @Override
-    public String createAuth(String username) {
-        return "Really cool authToken";
-    }
 }
