@@ -1,8 +1,9 @@
 package server;
 
 import com.google.gson.Gson;
+import service.resultRecords.AuthResult;
 import service.RegistrationService;
-import model.User;
+import chess.model.UserData;
 import spark.*;
 
 public class Server {
@@ -34,7 +35,10 @@ public class Server {
     }
 
     private Object register(Request request, Response response) {
-        var user = new Gson().fromJson(request.body(), User.class);
-        return new Gson().toJson(user);
+        UserData user = new Gson().fromJson(request.body(), UserData.class);
+
+        AuthResult registerResult = registrationService.register(user);
+
+        return new Gson().toJson(registerResult);
     }
 }
