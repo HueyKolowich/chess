@@ -2,12 +2,13 @@ package server;
 
 import com.google.gson.Gson;
 import service.resultRecords.AuthResult;
-import service.RegistrationService;
+import service.*;
 import chess.model.UserData;
 import spark.*;
 
 public class Server {
     private final RegistrationService registrationService = new RegistrationService();
+    private final ClearService clearService = new ClearService();
 
     public static void main(String[] args) {
         new Server().run(8080);
@@ -20,6 +21,7 @@ public class Server {
 
         Spark.get("/test", this::test);
         Spark.post("/user", this::register);
+        Spark.delete("/db", this::delete);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -40,5 +42,11 @@ public class Server {
         AuthResult registerResult = registrationService.register(user);
 
         return new Gson().toJson(registerResult);
+    }
+
+    private Object delete(Request request, Response response) {
+        boolean clearResult = clearService.delete();
+
+        return new Gson().toJson(clearResult);
     }
 }
