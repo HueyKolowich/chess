@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import service.resultRecords.*;
 import service.*;
 import chess.model.UserData;
+import service.serviceExceptions.UserNameInUseException;
 import spark.*;
 
 public class Server {
@@ -39,9 +40,17 @@ public class Server {
     private Object register(Request request, Response response) {
         UserData user = new Gson().fromJson(request.body(), UserData.class);
 
-        AuthResult registerResult = registrationService.register(user);
+        try {
+            AuthResult registerResult = registrationService.register(user);
 
-        return new Gson().toJson(registerResult);
+            response.status(200);
+            return new Gson().toJson(registerResult);
+        } catch (UserNameInUseException userNameInUseException) {
+            response.status(403);
+            return new Gson().toJson(new ErrorResult("message", "Error: already taken"));
+        } //TODO I probably need to have a final catch for everything else here to assign the 500 status
+
+
     }
 
     private Object delete(Request request, Response response) {
