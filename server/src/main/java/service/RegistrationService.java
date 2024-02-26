@@ -10,13 +10,13 @@ public class RegistrationService {
 
     public AuthResult register(UserData user) throws UserNameInUseException {
         if (userDao.getUser(user.username()) == null) {
-            //TODO Make call to createUser (for now just in memory) here
+            userDao.createUser(user);
 
             String authToken = userDao.createAuth(user.username());
 
             return new AuthResult(user.username(), authToken);
         } else {
-            throw new UserNameInUseException("Username is already in use.");
+            throw new UserNameInUseException("Error: already taken");
         }
     }
 }

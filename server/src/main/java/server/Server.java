@@ -47,7 +47,7 @@ public class Server {
             return new Gson().toJson(registerResult);
         } catch (UserNameInUseException userNameInUseException) {
             response.status(403);
-            return new Gson().toJson(new ErrorResult("message", "Error: already taken"));
+            return new Gson().toJson(new ErrorResult("message", userNameInUseException.getMessage()));
         } //TODO I probably need to have a final catch for everything else here to assign the 500 status
 
 
