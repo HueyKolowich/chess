@@ -1,11 +1,9 @@
 package service;
 
-//import chess.model.UserData;
-import dataAccess.*;
-//import service.resultRecords.AuthResult;
+import service.resultRecords.ClearResult;
 
 public class ClearService {
-    public boolean delete() {
-        return true;
+    public ClearResult delete() {
+        return null;
     }
 }

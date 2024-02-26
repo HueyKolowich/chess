@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import service.resultRecords.AuthResult;
+import service.resultRecords.*;
 import service.*;
 import chess.model.UserData;
 import spark.*;
@@ -45,7 +45,7 @@ public class Server {
     }
 
     private Object delete(Request request, Response response) {
-        boolean clearResult = clearService.delete();
+        ClearResult clearResult = clearService.delete();
 
         return new Gson().toJson(clearResult);
     }
