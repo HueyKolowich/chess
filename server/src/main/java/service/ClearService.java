@@ -1,9 +1,14 @@
 package service;
 
-import service.resultRecords.ClearResult;
+import dataAccess.*;
 
 public class ClearService {
-    public ClearResult delete() {
-        return null;
+    private final UserDao userDao = new MemoryUserDao();
+    private final AuthDao authDao = new MemoryAuthDao();
+    private final GameDao gameDao = new MemoryGameDao();
+    public void delete() {
+        userDao.clear();
+        authDao.clear();
+        gameDao.clear();
     }
 }

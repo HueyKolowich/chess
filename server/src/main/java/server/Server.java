@@ -52,14 +52,14 @@ public class Server {
         } catch (UserNameInUseException userNameInUseException) {
             response.status(403);
             return new Gson().toJson(new ErrorResult(userNameInUseException.getMessage()));
-        } //TODO I probably need to have a final catch for everything else here to assign the 500 status
+        }
 
 
     }
 
     private Object delete(Request request, Response response) {
-        ClearResult clearResult = clearService.delete();
-
-        return new Gson().toJson(clearResult);
+        clearService.delete();
+        response.status(200);
+        return "{}";
     }
 }
