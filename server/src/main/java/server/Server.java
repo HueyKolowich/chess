@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import service.resultRecords.*;
 import service.*;
 import chess.model.UserData;
+import service.serviceExceptions.MissingParameterException;
 import service.serviceExceptions.UserNameInUseException;
 import spark.*;
 
@@ -45,6 +46,9 @@ public class Server {
 
             response.status(200);
             return new Gson().toJson(registerResult);
+        } catch (MissingParameterException missingParameterException) {
+            response.status(400);
+            return new Gson().toJson(new ErrorResult(missingParameterException.getMessage()));
         } catch (UserNameInUseException userNameInUseException) {
             response.status(403);
             return new Gson().toJson(new ErrorResult(userNameInUseException.getMessage()));
