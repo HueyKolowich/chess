@@ -80,6 +80,9 @@ public class Server {
 
             response.status(200);
             return "{}";
+        } catch (MissingParameterException missingParameterException) {
+            response.status(400);
+            return new Gson().toJson(new ErrorResult(missingParameterException.getMessage()));
         } catch (UnauthorizedAuthException unauthorizedAuthException) {
             response.status(401);
             return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
