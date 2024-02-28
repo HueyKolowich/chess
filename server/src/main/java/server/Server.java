@@ -75,10 +75,18 @@ public class Server {
     private Object joinGame(Request request, Response response) {
         JoinRequest joinRequest = new Gson().fromJson(request.body(), JoinRequest.class);
 
-        joinService.join(request.headers("authorization"), joinRequest.playerColor(), joinRequest.gameID());
+        try {
+            joinService.join(request.headers("authorization"), joinRequest.playerColor(), joinRequest.gameID());
 
-        response.status(200);
-        return "{}";
+            response.status(200);
+            return "{}";
+        } catch (UnauthorizedAuthException unauthorizedAuthException) {
+            response.status(401);
+            return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
+        } catch (AlreadyTakenException alreadyTakenException) {
+            response.status(403);
+            return new Gson().toJson(new ErrorResult(alreadyTakenException.getMessage()));
+        }
     }
 
     private Object login(Request request, Response response) {

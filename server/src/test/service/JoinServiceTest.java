@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import service.resultRecords.AuthResult;
 import service.resultRecords.CreateResult;
+import service.serviceExceptions.AlreadyTakenException;
 import service.serviceExceptions.MissingParameterException;
 import service.serviceExceptions.UnauthorizedAuthException;
 import service.serviceExceptions.UserNameInUseException;
@@ -35,18 +36,28 @@ class JoinServiceTest {
         JoinService joinService = new JoinService();
         CreateService createService = new CreateService();
         RegistrationService registrationService = new RegistrationService();
-        UserData testUser  = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
+        UserData testUser1  = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
+        UserData testUser2  = new UserData("TestUsername2", "TestPassword2", "TestEmail2@email.com");
+        UserData testUser3  = new UserData("TestUsername3", "TestPassword3", "TestEmail3@email.com");
+        UserData testUser4  = new UserData("TestUsername4", "TestPassword4", "TestEmail4@email.com");
 
         try {
             //Initialization (continued)
-            AuthResult authResult = registrationService.register(testUser);
-            CreateResult createResponse  = createService.create(authResult.authToken(), "TestGame1");
+            AuthResult authResult1 = registrationService.register(testUser1);
+            AuthResult authResult2 = registrationService.register(testUser2);
+            AuthResult authResult3 = registrationService.register(testUser3);
+            AuthResult authResult4 = registrationService.register(testUser4);
+            CreateResult createResponse  = createService.create(authResult1.authToken(), "TestGame1");
 
             //Positive case
-            Assertions.assertDoesNotThrow(() -> joinService.join(authResult.authToken(), "White", createResponse.gameID()));
+            Assertions.assertDoesNotThrow(() -> joinService.join(authResult1.authToken(), "WHITE", createResponse.gameID()));
+            Assertions.assertDoesNotThrow(() -> joinService.join(authResult2.authToken(), "BLACK", createResponse.gameID()));
+            Assertions.assertDoesNotThrow(() -> joinService.join(authResult3.authToken(), null, createResponse.gameID()));
 
-            //Negative test
+            //Negative tests
+            Assertions.assertThrows(UnauthorizedAuthException.class, () -> joinService.join("", null, createResponse.gameID()));
 
+            Assertions.assertThrows(AlreadyTakenException.class, () -> joinService.join(authResult4.authToken(), "WHITE", createResponse.gameID()));
         } catch (UserNameInUseException | MissingParameterException registerException) {
             System.err.println("RegisterService failed!");
             System.err.println(registerException.getMessage());

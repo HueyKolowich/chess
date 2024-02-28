@@ -30,7 +30,7 @@ public class MemoryGameDao implements GameDao {
     }
 
     @Override
-    public void addPlayer(String playerColor, String username, int gameID) {
+    public void addPlayer(String playerColor, String username, int gameID) throws DataAccessException {
         String tempWhiteUsername = MemoryGameDao.games.get(gameID).whiteUsername();
         String tempBlackUsername = MemoryGameDao.games.get(gameID).blackUsername();
         String tempGameName = MemoryGameDao.games.get(gameID).gameName();
@@ -38,13 +38,13 @@ public class MemoryGameDao implements GameDao {
 
         if (playerColor.equals("WHITE")) {
             if (MemoryGameDao.games.get(gameID).whiteUsername() != null) {
-                //Throw dataAccess here
+                throw new DataAccessException("playerColor already taken");
             }
 
             MemoryGameDao.games.put(gameID, new GameData(gameID, username, tempBlackUsername, tempGameName, tempChessGame));
         } else {
             if (MemoryGameDao.games.get(gameID).blackUsername() != null) {
-                //Throw dataAccess here
+                throw new DataAccessException("playerColor already taken");
             }
 
             MemoryGameDao.games.put(gameID, new GameData(gameID, tempWhiteUsername, username, tempGameName, tempChessGame));
