@@ -35,15 +35,14 @@ class LogoutServiceTest {
 
         try {
             //Initialization (continued)
-            AuthResult registerResponse = registrationService.register(testUser);
+            registrationService.register(testUser);
             AuthResult loginResponse = loginService.login(testUser);
 
             //Positive case
             Assertions.assertDoesNotThrow(() -> logoutService.logout(loginResponse.authToken()));
 
-//            //Negative cases
-//            Assertions.assertThrows(UnauthorizedAuthException.class, () -> loginService.login(badCopy1));
-//            Assertions.assertThrows(UnauthorizedAuthException.class, () -> loginService.login(badCopy2));
+            //Negative case
+            Assertions.assertThrows(UnauthorizedAuthException.class, () -> logoutService.logout(loginResponse.authToken()));
         } catch (UserNameInUseException | MissingParameterException registerException) {
             System.err.println("RegisterService failed!");
             System.err.println(registerException.getMessage());

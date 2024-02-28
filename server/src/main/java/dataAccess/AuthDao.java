@@ -4,6 +4,6 @@ import chess.model.UserData;
 
 public interface AuthDao {
     String createAuth(String username);
-    void clearAuth(String authToken);
+    void clearAuth(String authToken) throws DataAccessException;
     void clear();
 }

@@ -24,15 +24,21 @@ public class MemoryAuthDao implements AuthDao {
         return newAuthToken;
     }
 
+    /**
+     * Removes the authToken from memory
+     *
+     * @param authToken The authToken to remove
+     * @throws DataAccessException If the authToken is not found in memory
+     */
     @Override
-    public void clearAuth(String authToken) {
+    public void clearAuth(String authToken) throws DataAccessException {
         for (String username : MemoryAuthDao.auths.keySet()) {
             if (MemoryAuthDao.auths.get(username).authToken().equals(authToken)) {
                 MemoryAuthDao.auths.remove(username);
-                break;
+                return;
             }
         }
-        //TODO should be a real problem if I get here
+        throw new DataAccessException("No authToken match found!");
     }
 
     /**

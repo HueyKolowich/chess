@@ -68,10 +68,15 @@ public class Server {
     }
 
     private Object logout(Request request, Response response) {
-        logoutService.logout(request.headers("authorization"));
+        try {
+            logoutService.logout(request.headers("authorization"));
 
-        response.status(200);
-        return "{}";
+            response.status(200);
+            return "{}";
+        } catch (UnauthorizedAuthException unauthorizedAuthException) {
+            response.status(401);
+            return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
+        }
     }
 
     private Object delete(Request request, Response response) {
