@@ -82,11 +82,6 @@ public class MemoryGameDao implements GameDao {
             MemoryGameDao.games.put(gameID, new GameData(gameID, tempWhiteUsername, username, tempGameName, tempChessGame));
         }
     }
-    
-    @Override
-    public boolean addSpectator(int gameID) {
-        return false;
-    }
 
     /**
      * Clears all users data in memory

@@ -8,25 +8,37 @@ import service.serviceExceptions.UnauthorizedAuthException;
 public class JoinService {
     AuthDao authDao = new MemoryAuthDao();
     GameDao gameDao = new MemoryGameDao();
+
+    /**
+     * Verifies that the specified game exists, and, if a color is specified,
+     * adds the caller as the requested color to the game.
+     * If no color is specified the user is joined as an observer. This request is idempotent.
+     *
+     * @param authToken to validate request
+     * @param playerColor desired join color
+     * @param gameID of the game to join
+     * @throws UnauthorizedAuthException if authToken not found
+     * @throws AlreadyTakenException if playerColor for specified color is already taken
+     * @throws MissingParameterException if no game is found for the gameID
+     */
     public void join(String authToken, String playerColor, int gameID) throws UnauthorizedAuthException, AlreadyTakenException, MissingParameterException {
         if (!authDao.verifyAuth(authToken)) {
             throw new UnauthorizedAuthException("Error: unauthorized");
         }
 
-//        if (!gameDao.findGame(gameID)) {
-//            throws new something
-//        }
+        if (!gameDao.findGame(gameID)) {
+            throw new MissingParameterException("Error: bad request");
+        }
 
         try {
-            if (playerColor == null) {
-                //Spectator
-            } else if (playerColor.equals("WHITE") || playerColor.equals("BLACK")) {
-                gameDao.addPlayer(playerColor, authDao.getUsernameByAuth(authToken), gameID);
-            } else {
-                throw new MissingParameterException("Error: bad request");
+            if (playerColor != null) {
+                if (playerColor.equals("WHITE") || playerColor.equals("BLACK")) {
+                    gameDao.addPlayer(playerColor, authDao.getUsernameByAuth(authToken), gameID);
+                } else {
+                    throw new MissingParameterException("Error: bad request");
+                }
             }
         } catch (DataAccessException dataAccessException) {
-            //TODO One option here might be that no username was found... throw 500??
             if (dataAccessException.getMessage().contains("playerColor")) {
                 throw new AlreadyTakenException("Error: already taken");
             }

@@ -58,6 +58,8 @@ class JoinServiceTest {
             Assertions.assertThrows(UnauthorizedAuthException.class, () -> joinService.join("", null, createResponse.gameID()));
 
             Assertions.assertThrows(AlreadyTakenException.class, () -> joinService.join(authResult4.authToken(), "WHITE", createResponse.gameID()));
+
+            Assertions.assertThrows(MissingParameterException.class, () -> joinService.join(authResult4.authToken(), "WHITE", 1));
         } catch (UserNameInUseException | MissingParameterException registerException) {
             System.err.println("RegisterService failed!");
             System.err.println(registerException.getMessage());

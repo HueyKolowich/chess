@@ -11,6 +11,5 @@ public interface GameDao {
     Collection<ListResultBody> listGames();
     boolean findGame(int gameID);
     void addPlayer(String playerColor, String username, int gameID) throws DataAccessException;
-    boolean addSpectator(int gameID);
     void clear();
 }
