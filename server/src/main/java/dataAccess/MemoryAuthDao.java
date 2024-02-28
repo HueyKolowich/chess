@@ -1,6 +1,8 @@
 package dataAccess;
 
 import chess.model.AuthData;
+import chess.model.UserData;
+
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -9,6 +11,7 @@ public class MemoryAuthDao implements AuthDao {
 
     /**
      * Creates and stores a new authToken string
+     * (if authToken already exists for a user then it is replaced)
      *
      * @param username User for which the authToken will be generated
      * @return The new authToken

@@ -32,6 +32,13 @@ public class MemoryUserDao implements UserDao {
         MemoryUserDao.users.put(user.username(), user);
     }
 
+    @Override
+    public boolean checkPassword(UserData user) {
+        if (user.password().equals(MemoryUserDao.users.get(user.username()).password())) {
+            return true;
+        } else { return false; }
+    }
+
     /**
      * Clears all users data in memory
      */

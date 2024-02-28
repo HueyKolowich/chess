@@ -1,17 +1,12 @@
 package service;
 
 import chess.model.UserData;
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import service.resultRecords.AuthResult;
 import service.serviceExceptions.MissingParameterException;
 import service.serviceExceptions.UserNameInUseException;
-import spark.Response;
 
-import java.net.HttpURLConnection;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class RegistrationServiceTest {
 

@@ -11,6 +11,7 @@ import spark.*;
 public class Server {
     private final RegistrationService registrationService = new RegistrationService();
     private final ClearService clearService = new ClearService();
+    private final LoginService loginService = new LoginService();
 
     public static void main(String[] args) {
         new Server().run(8080);
@@ -21,8 +22,8 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        Spark.get("/test", this::test);
         Spark.post("/user", this::register);
+        Spark.post("/session", this::login);
         Spark.delete("/db", this::delete);
 
         Spark.awaitInitialization();
@@ -32,10 +33,6 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
-    }
-
-    private Object test(Request request, Response response) {
-        return "This is a test";
     }
 
     private Object register(Request request, Response response) {
@@ -53,8 +50,15 @@ public class Server {
             response.status(403);
             return new Gson().toJson(new ErrorResult(userNameInUseException.getMessage()));
         }
+    }
 
+    private Object login(Request request, Response response) {
+        UserData user = new Gson().fromJson(request.body(), UserData.class);
 
+        AuthResult loginResult = loginService.login(user);
+
+        response.status(200);
+        return new Gson().toJson(loginResult);
     }
 
     private Object delete(Request request, Response response) {
