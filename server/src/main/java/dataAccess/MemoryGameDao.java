@@ -24,6 +24,38 @@ public class MemoryGameDao implements GameDao {
         return gameID;
     }
 
+    @Override
+    public boolean findGame(int gameID) {
+        return MemoryGameDao.games.containsKey(gameID);
+    }
+
+    @Override
+    public void addPlayer(String playerColor, String username, int gameID) {
+        String tempWhiteUsername = MemoryGameDao.games.get(gameID).whiteUsername();
+        String tempBlackUsername = MemoryGameDao.games.get(gameID).blackUsername();
+        String tempGameName = MemoryGameDao.games.get(gameID).gameName();
+        ChessGame tempChessGame = MemoryGameDao.games.get(gameID).game();
+
+        if (playerColor.equals("WHITE")) {
+            if (MemoryGameDao.games.get(gameID).whiteUsername() != null) {
+                //Throw dataAccess here
+            }
+
+            MemoryGameDao.games.put(gameID, new GameData(gameID, username, tempBlackUsername, tempGameName, tempChessGame));
+        } else {
+            if (MemoryGameDao.games.get(gameID).blackUsername() != null) {
+                //Throw dataAccess here
+            }
+
+            MemoryGameDao.games.put(gameID, new GameData(gameID, tempWhiteUsername, username, tempGameName, tempChessGame));
+        }
+    }
+
+    @Override
+    public boolean addSpectator(int gameID) {
+        return false;
+    }
+
     /**
      * Clears all users data in memory
      */

@@ -14,6 +14,7 @@ public class Server {
     private final LoginService loginService = new LoginService();
     private final LogoutService logoutService = new LogoutService();
     private final CreateService createService = new CreateService();
+    private final JoinService joinService = new JoinService();
 
     public static void main(String[] args) {
         new Server().run(8080);
@@ -26,6 +27,7 @@ public class Server {
 
         Spark.post("/user", this::register);
         Spark.post("/game", this::createGame);
+        Spark.put("/game", this::joinGame);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
         Spark.delete("/db", this::delete);
@@ -68,6 +70,15 @@ public class Server {
             response.status(401);
             return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
         }
+    }
+
+    private Object joinGame(Request request, Response response) {
+        JoinRequest joinRequest = new Gson().fromJson(request.body(), JoinRequest.class);
+
+        joinService.join(request.headers("authorization"), joinRequest.playerColor(), joinRequest.gameID());
+
+        response.status(200);
+        return "{}";
     }
 
     private Object login(Request request, Response response) {
