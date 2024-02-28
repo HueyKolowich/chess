@@ -20,8 +20,13 @@ public class MemoryAuthDao implements AuthDao {
     public String createAuth(String username) {
         String newAuthToken = UUID.randomUUID().toString();
 
-        MemoryAuthDao.auths.put(username, new AuthData(newAuthToken, username));
+        MemoryAuthDao.auths.put(newAuthToken, new AuthData(newAuthToken, username));
         return newAuthToken;
+    }
+
+    @Override
+    public boolean verifyAuth(String authToken) {
+        return MemoryAuthDao.auths.containsKey(authToken);
     }
 
     /**
@@ -32,13 +37,11 @@ public class MemoryAuthDao implements AuthDao {
      */
     @Override
     public void clearAuth(String authToken) throws DataAccessException {
-        for (String username : MemoryAuthDao.auths.keySet()) {
-            if (MemoryAuthDao.auths.get(username).authToken().equals(authToken)) {
-                MemoryAuthDao.auths.remove(username);
-                return;
-            }
+        if (!MemoryAuthDao.auths.containsKey(authToken)) {
+            throw new DataAccessException("No authToken match found!");
         }
-        throw new DataAccessException("No authToken match found!");
+
+        MemoryAuthDao.auths.remove(authToken);
     }
 
     /**

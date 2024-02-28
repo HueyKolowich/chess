@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import service.requestRecords.*;
 import service.resultRecords.*;
 import service.*;
 import chess.model.UserData;
@@ -12,6 +13,7 @@ public class Server {
     private final ClearService clearService = new ClearService();
     private final LoginService loginService = new LoginService();
     private final LogoutService logoutService = new LogoutService();
+    private final CreateService createService = new CreateService();
 
     public static void main(String[] args) {
         new Server().run(8080);
@@ -23,6 +25,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         Spark.post("/user", this::register);
+        Spark.post("/game", this::createGame);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
         Spark.delete("/db", this::delete);
@@ -51,6 +54,15 @@ public class Server {
             response.status(403);
             return new Gson().toJson(new ErrorResult(userNameInUseException.getMessage()));
         }
+    }
+
+    private Object createGame(Request request, Response response) {
+        CreateRequest gameRequest = new Gson().fromJson(request.body(), CreateRequest.class);
+
+        CreateResult createResult = createService.create(request.headers("authorization"), gameRequest.gameName());
+
+        response.status(200);
+        return new Gson().toJson(createResult);
     }
 
     private Object login(Request request, Response response) {
