@@ -5,7 +5,6 @@ import service.resultRecords.CreateResult;
 import service.resultRecords.ListResultBody;
 
 import java.util.Collection;
-import java.util.Set;
 
 public interface GameDao {
     int createGame(int gameID, String gameName);

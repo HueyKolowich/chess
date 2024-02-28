@@ -24,6 +24,13 @@ public class MemoryAuthDao implements AuthDao {
         return newAuthToken;
     }
 
+    /**
+     * Find the username for a given authToken
+     *
+     * @param authToken which provides the key for the username search
+     * @return String username
+     * @throws DataAccessException if no username is associated with the authToken
+     */
     @Override
     public String getUsernameByAuth(String authToken) throws DataAccessException {
         if (!MemoryAuthDao.auths.containsKey(authToken)) {

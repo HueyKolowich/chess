@@ -8,12 +8,17 @@ import dataAccess.MemoryGameDao;
 import service.resultRecords.ListResult;
 import service.serviceExceptions.UnauthorizedAuthException;
 
-import java.util.Set;
-
 public class ListService {
     AuthDao authDao = new MemoryAuthDao();
     GameDao gameDao = new MemoryGameDao();
 
+    /**
+     * Lists all games
+     *
+     * @param authToken To validate the current user can perform this request
+     * @return ListResult record containing HashSet of ListResultBody records
+     * @throws UnauthorizedAuthException If not authorized
+     */
     public ListResult list(String authToken) throws UnauthorizedAuthException {
         if (!authDao.verifyAuth(authToken)) {
             throw new UnauthorizedAuthException("Error: unauthorized");
