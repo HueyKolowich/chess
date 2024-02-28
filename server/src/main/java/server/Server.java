@@ -11,6 +11,7 @@ public class Server {
     private final RegistrationService registrationService = new RegistrationService();
     private final ClearService clearService = new ClearService();
     private final LoginService loginService = new LoginService();
+    private final LogoutService logoutService = new LogoutService();
 
     public static void main(String[] args) {
         new Server().run(8080);
@@ -23,6 +24,7 @@ public class Server {
 
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
         Spark.delete("/db", this::delete);
 
         Spark.awaitInitialization();
@@ -65,8 +67,16 @@ public class Server {
         }
     }
 
+    private Object logout(Request request, Response response) {
+        logoutService.logout(request.headers("authorization"));
+
+        response.status(200);
+        return "{}";
+    }
+
     private Object delete(Request request, Response response) {
         clearService.delete();
+
         response.status(200);
         return "{}";
     }

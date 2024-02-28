@@ -24,6 +24,17 @@ public class MemoryAuthDao implements AuthDao {
         return newAuthToken;
     }
 
+    @Override
+    public void clearAuth(String authToken) {
+        for (String username : MemoryAuthDao.auths.keySet()) {
+            if (MemoryAuthDao.auths.get(username).authToken().equals(authToken)) {
+                MemoryAuthDao.auths.remove(username);
+                break;
+            }
+        }
+        //TODO should be a real problem if I get here
+    }
+
     /**
      * Clears all users data in memory
      */
