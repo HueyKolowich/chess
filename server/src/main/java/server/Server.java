@@ -14,6 +14,7 @@ public class Server {
     private final LoginService loginService = new LoginService();
     private final LogoutService logoutService = new LogoutService();
     private final CreateService createService = new CreateService();
+    private final ListService listService = new ListService();
     private final JoinService joinService = new JoinService();
 
     public static void main(String[] args) {
@@ -28,6 +29,7 @@ public class Server {
         Spark.post("/user", this::register);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
+        Spark.get("/game", this::listGames);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
         Spark.delete("/db", this::delete);
@@ -89,6 +91,18 @@ public class Server {
         } catch (AlreadyTakenException alreadyTakenException) {
             response.status(403);
             return new Gson().toJson(new ErrorResult(alreadyTakenException.getMessage()));
+        }
+    }
+
+    private Object listGames(Request request, Response response) {
+        try {
+            ListResult listResult = listService.list(request.headers("authorization"));
+
+            response.status(200);
+            return new Gson().toJson(listResult);
+        } catch (UnauthorizedAuthException unauthorizedAuthException) {
+            response.status(401);
+            return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
         }
     }
 

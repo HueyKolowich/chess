@@ -3,8 +3,12 @@ package dataAccess;
 import chess.ChessGame;
 import chess.model.GameData;
 import service.resultRecords.CreateResult;
+import service.resultRecords.ListResultBody;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MemoryGameDao implements GameDao {
     static HashMap<Integer, GameData> games = new HashMap<>();
@@ -22,6 +26,17 @@ public class MemoryGameDao implements GameDao {
         MemoryGameDao.games.put(gameID, new GameData(gameID, null, null, gameName, new ChessGame()));
 
         return gameID;
+    }
+
+    @Override
+    public Collection<ListResultBody> listGames() {
+        Collection<ListResultBody> formattedGames = new HashSet<>();
+
+        for (GameData gameData : MemoryGameDao.games.values()) {
+            formattedGames.add(new ListResultBody(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName()));
+        }
+
+        return formattedGames;
     }
 
     @Override
