@@ -6,14 +6,13 @@ import org.junit.jupiter.api.Test;
 import service.resultRecords.AuthResult;
 import service.resultRecords.CreateResult;
 import service.serviceExceptions.MissingParameterException;
+import service.serviceExceptions.UnauthorizedAuthException;
 import service.serviceExceptions.UserNameInUseException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class CreateServiceTest {
 
     @Test
-    void create() {
+    void create() throws UnauthorizedAuthException {
         /*
         Create Game
 
@@ -41,6 +40,9 @@ class CreateServiceTest {
             //Positive case
             CreateResult createResponse  = createService.create(authResult.authToken(), "TestGame1");
             Assertions.assertTrue(createResponse.gameID() > 0);
+
+            //Negative test
+            Assertions.assertThrows(UnauthorizedAuthException.class, () -> createService.create("", "TestGame2"));
         } catch (UserNameInUseException | MissingParameterException registerException) {
             System.err.println("RegisterService failed!");
             System.err.println(registerException.getMessage());

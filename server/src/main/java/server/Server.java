@@ -59,10 +59,15 @@ public class Server {
     private Object createGame(Request request, Response response) {
         CreateRequest gameRequest = new Gson().fromJson(request.body(), CreateRequest.class);
 
-        CreateResult createResult = createService.create(request.headers("authorization"), gameRequest.gameName());
+        try {
+            CreateResult createResult = createService.create(request.headers("authorization"), gameRequest.gameName());
 
-        response.status(200);
-        return new Gson().toJson(createResult);
+            response.status(200);
+            return new Gson().toJson(createResult);
+        } catch (UnauthorizedAuthException unauthorizedAuthException) {
+            response.status(401);
+            return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
+        }
     }
 
     private Object login(Request request, Response response) {
