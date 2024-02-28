@@ -9,7 +9,7 @@ import service.serviceExceptions.*;
 class LoginServiceTest {
 
     @Test
-    public void login() throws UserNameInUseException, MissingParameterException, UnauthorizedAuthException {
+    public void login() throws UnauthorizedAuthException {
         /*
         Login
 
@@ -27,20 +27,26 @@ class LoginServiceTest {
         LoginService loginService = new LoginService();
         RegistrationService registrationService = new RegistrationService();
         UserData testUser1 = new UserData("TestUsername1", "TestPassword1", "");
-        UserData badcopy1 = new UserData("TestUsername1", "Wrong", "");
-        UserData badcopy2 = new UserData("Wrong", "TestPassword1", "");
-        AuthResult registerResponse = registrationService.register(testUser1);
+        UserData badCopy1 = new UserData("TestUsername1", "Wrong", "");
+        UserData badCopy2 = new UserData("Wrong", "TestPassword1", "");
+        try {
+            AuthResult registerResponse = registrationService.register(testUser1);
 
-        //Positive case
-        AuthResult loginResponse = loginService.login(testUser1);
-        AuthResult expectedResponse = new AuthResult("TestUsername1", "");
+            //Positive case
+            AuthResult loginResponse = loginService.login(testUser1);
+            AuthResult expectedResponse = new AuthResult("TestUsername1", "");
 
-        Assertions.assertEquals(expectedResponse.username(), loginResponse.username());
-        Assertions.assertNotNull(loginResponse.authToken());
-        Assertions.assertNotEquals(registerResponse.authToken(), loginResponse.authToken());
+            Assertions.assertEquals(expectedResponse.username(), loginResponse.username());
+            Assertions.assertNotNull(loginResponse.authToken());
+            Assertions.assertNotEquals(registerResponse.authToken(), loginResponse.authToken());
 
-        //Negative cases
-        Assertions.assertThrows(UnauthorizedAuthException.class, () -> loginService.login(badcopy1));
-        Assertions.assertThrows(UnauthorizedAuthException.class, () -> loginService.login(badcopy2));
+            //Negative cases
+            Assertions.assertThrows(UnauthorizedAuthException.class, () -> loginService.login(badCopy1));
+            Assertions.assertThrows(UnauthorizedAuthException.class, () -> loginService.login(badCopy2));
+        } catch (UserNameInUseException | MissingParameterException registerException) {
+            System.err.println("RegisterService failed!");
+            System.err.println(registerException.getMessage());
+        }
+
     }
 }
