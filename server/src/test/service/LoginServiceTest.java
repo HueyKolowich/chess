@@ -47,6 +47,5 @@ class LoginServiceTest {
             System.err.println("RegisterService failed!");
             System.err.println(registerException.getMessage());
         }
-
     }
 }
