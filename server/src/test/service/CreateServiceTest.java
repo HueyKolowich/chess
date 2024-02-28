@@ -2,6 +2,8 @@ package service;
 
 import chess.model.UserData;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.resultRecords.AuthResult;
 import service.resultRecords.CreateResult;
@@ -10,9 +12,28 @@ import service.serviceExceptions.UnauthorizedAuthException;
 import service.serviceExceptions.UserNameInUseException;
 
 class CreateServiceTest {
+    private static CreateService createService;
+    private static RegistrationService registrationService;
+    private static UserData testUser;
+    private static AuthResult authResult;
+
+    @BeforeAll
+    public static void init() {
+        //Initialization
+        createService = new CreateService();
+        registrationService = new RegistrationService();
+        testUser  = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
+        try {
+            authResult = registrationService.register(testUser);
+        } catch (UserNameInUseException | MissingParameterException registerException) {
+            System.err.println("RegisterService failed!");
+            System.err.println(registerException.getMessage());
+        }
+    }
+
 
     @Test
-    void create() throws UnauthorizedAuthException {
+    void createPositive() throws UnauthorizedAuthException {
         /*
         Create Game
 
@@ -28,24 +49,14 @@ class CreateServiceTest {
         Failure response	[500] { "message": "Error: description" }
          */
 
-        //Initialization
-        CreateService createService = new CreateService();
-        RegistrationService registrationService = new RegistrationService();
-        UserData testUser  = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
+        //Positive case
+        CreateResult createResponse  = createService.create(authResult.authToken(), "TestGame1");
+        Assertions.assertTrue(createResponse.gameID() > 0);
+    }
 
-        try {
-            //Initialization (continued)
-            AuthResult authResult = registrationService.register(testUser);
-
-            //Positive case
-            CreateResult createResponse  = createService.create(authResult.authToken(), "TestGame1");
-            Assertions.assertTrue(createResponse.gameID() > 0);
-
-            //Negative test
-            Assertions.assertThrows(UnauthorizedAuthException.class, () -> createService.create("", "TestGame2"));
-        } catch (UserNameInUseException | MissingParameterException registerException) {
-            System.err.println("RegisterService failed!");
-            System.err.println(registerException.getMessage());
-        }
+    @Test
+    void createNegative() throws UnauthorizedAuthException {
+        //Negative test
+        Assertions.assertThrows(UnauthorizedAuthException.class, () -> createService.create("", "TestGame2"));
     }
 }
