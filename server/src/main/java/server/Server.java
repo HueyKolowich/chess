@@ -4,8 +4,7 @@ import com.google.gson.Gson;
 import service.resultRecords.*;
 import service.*;
 import chess.model.UserData;
-import service.serviceExceptions.MissingParameterException;
-import service.serviceExceptions.UserNameInUseException;
+import service.serviceExceptions.*;
 import spark.*;
 
 public class Server {
@@ -55,10 +54,15 @@ public class Server {
     private Object login(Request request, Response response) {
         UserData user = new Gson().fromJson(request.body(), UserData.class);
 
-        AuthResult loginResult = loginService.login(user);
+        try {
+            AuthResult loginResult = loginService.login(user);
 
-        response.status(200);
-        return new Gson().toJson(loginResult);
+            response.status(200);
+            return new Gson().toJson(loginResult);
+        } catch (UnauthorizedAuthException unauthorizedAuthException) {
+            response.status(401);
+            return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
+        }
     }
 
     private Object delete(Request request, Response response) {
