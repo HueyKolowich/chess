@@ -32,6 +32,12 @@ public class MemoryUserDao implements UserDao {
         MemoryUserDao.users.put(user.username(), user);
     }
 
+    /**
+     * Checks to see if a given password matches that of a registered user
+     *
+     * @param user The user for which to check the password
+     * @return True if a match, false otherwise
+     */
     @Override
     public boolean checkPassword(UserData user) {
         if (user.password().equals(MemoryUserDao.users.get(user.username()).password())) {
