@@ -3,6 +3,7 @@ package dataAccess;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
     public DatabaseAuthDao() throws DataAccessException {
@@ -14,8 +15,12 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
      * @return
      */
     @Override
-    public String createAuth(String username) {
-        return null;
+    public String createAuth(String username) throws DataAccessException {
+        String newAuthToken = UUID.randomUUID().toString();
+        String statement = "INSERT INTO auth (username, authToken) VALUES (?, ?)";
+
+        executeUpdate(statement, username, newAuthToken);
+        return newAuthToken;
     }
 
     /**
