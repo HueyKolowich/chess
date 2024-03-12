@@ -81,7 +81,9 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
      */
     @Override
     public void clearAuth(String authToken) throws DataAccessException {
+        String statement = "DELETE FROM auth WHERE authToken=?";
 
+        executeUpdate(statement, authToken); //TODO I need to know somehow that no authToken was found to throw a DataAccessException
     }
 
     /**
@@ -95,9 +97,11 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS auth (
+                `id` int NOT NULL AUTO_INCREMENT,
                 `username` varchar(256) NOT NULL,
                 `authToken` varchar(256) NOT NULL,
-                PRIMARY KEY (`username`), 
+                PRIMARY KEY (`id`),
+                INDEX (`username`), 
                 INDEX (`authToken`)
             )
             """

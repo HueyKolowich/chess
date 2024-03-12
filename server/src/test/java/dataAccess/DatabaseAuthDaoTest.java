@@ -35,7 +35,7 @@ class DatabaseAuthDaoTest {
         Assertions.assertEquals("testUser", databaseAuthDao.getUsernameByAuth("9946bad9-5210-44b2-a798-6a8ecee68948"));
         Assertions.assertThrows(DataAccessException.class, () -> databaseAuthDao.getUsernameByAuth("9946bad9-5210-44b2-a798-aaaaaaaaaaaa"));
 
-        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
+//        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
     }
 
     @Test
@@ -52,6 +52,7 @@ class DatabaseAuthDaoTest {
 
     @Test
     void clearAuth() {
+
     }
 
     @Test

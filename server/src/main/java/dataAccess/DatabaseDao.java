@@ -1,9 +1,6 @@
 package dataAccess;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class DatabaseDao {
     /**
@@ -31,15 +28,24 @@ public class DatabaseDao {
      * @param params Objects to be parsed into the script if needed
      * @throws DataAccessException If issue with the DB connection
      */
-    protected void executeUpdate(String statement, Object... params) throws DataAccessException {
+    protected int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
                     var param = params[i];
                     if (param instanceof String p) { preparedStatement.setString(i + 1, p); }
+                    else if (param instanceof Integer integer) { preparedStatement.setInt(i + 1, integer); }
                 }
 
                 preparedStatement.executeUpdate();
+
+
+                ResultSet resultSet = preparedStatement.getGeneratedKeys();
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+
+                return 0;
             }
         } catch (SQLException sqlException) {
             throw new DataAccessException(String.format("Unable to update database: %s", sqlException.getMessage()));
