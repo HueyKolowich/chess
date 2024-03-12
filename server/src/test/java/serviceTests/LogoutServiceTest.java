@@ -1,6 +1,7 @@
 package serviceTests;
 
 import chess.model.UserData;
+import dataAccess.DataAccessException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class LogoutServiceTest {
         try {
             registrationService.register(testUser1);
             loginResponse = loginService.login(testUser1);
-        } catch (UserNameInUseException | MissingParameterException | UnauthorizedAuthException e) {
+        } catch (UserNameInUseException | MissingParameterException | UnauthorizedAuthException | DataAccessException e) {
             System.err.println("Setup failed!");
             System.err.println(e.getMessage());
         }
@@ -56,7 +57,7 @@ class LogoutServiceTest {
     }
 
     @Test
-    void logoutNegative() throws UnauthorizedAuthException {
+    void logoutNegative() throws UnauthorizedAuthException, DataAccessException {
         loginResponse = loginService.login(testUser1);
         logoutService.logout(loginResponse.authToken());
         Assertions.assertThrows(UnauthorizedAuthException.class, () -> logoutService.logout(loginResponse.authToken()));

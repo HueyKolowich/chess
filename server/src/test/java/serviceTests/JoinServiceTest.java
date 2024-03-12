@@ -1,6 +1,7 @@
 package serviceTests;
 
 import chess.model.UserData;
+import dataAccess.DataAccessException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -50,7 +51,7 @@ class JoinServiceTest {
             authResult1 = registrationService.register(testUser);
 
             createResult  = createService.create(authResult1.authToken(), "TestGame1");
-        } catch (UserNameInUseException | MissingParameterException | UnauthorizedAuthException e) {
+        } catch (UserNameInUseException | MissingParameterException | UnauthorizedAuthException | DataAccessException e) {
             System.err.println("Setup failed!");
             System.err.println(e.getMessage());
         }

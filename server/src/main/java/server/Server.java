@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
 import service.requestRecords.*;
 import service.resultRecords.*;
 import service.*;
@@ -57,6 +58,9 @@ public class Server {
         } catch (UserNameInUseException userNameInUseException) {
             response.status(403);
             return new Gson().toJson(new ErrorResult(userNameInUseException.getMessage()));
+        } catch (DataAccessException dataAccessException) {
+            response.status(500);
+            return new Gson().toJson(new ErrorResult(dataAccessException.getMessage()));
         }
     }
 
@@ -117,6 +121,9 @@ public class Server {
         } catch (UnauthorizedAuthException unauthorizedAuthException) {
             response.status(401);
             return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
+        } catch (DataAccessException dataAccessException) {
+            response.status(500);
+            return new Gson().toJson(new ErrorResult(dataAccessException.getMessage()));
         }
     }
 

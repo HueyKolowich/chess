@@ -40,9 +40,7 @@ public class MemoryUserDao implements UserDao {
      */
     @Override
     public boolean checkPassword(UserData user) {
-        if (user.password().equals(MemoryUserDao.users.get(user.username()).password())) {
-            return true;
-        } else { return false; }
+        return user.password().equals(MemoryUserDao.users.get(user.username()).password());
     }
 
     /**

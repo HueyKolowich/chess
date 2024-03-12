@@ -1,6 +1,7 @@
 package serviceTests;
 
 import chess.model.UserData;
+import dataAccess.DataAccessException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -38,7 +39,7 @@ class RegistrationServiceTest {
     }
 
     @Test
-    public void registerPositive() throws MissingParameterException, UserNameInUseException {
+    public void registerPositive() throws MissingParameterException, UserNameInUseException, DataAccessException {
         AuthResult registerResponse = registrationService.register(testUser1);
         AuthResult expectedResponse = new AuthResult("TestUsername1", "");
 
@@ -47,7 +48,7 @@ class RegistrationServiceTest {
     }
 
     @Test
-    public void registerNegative() throws MissingParameterException, UserNameInUseException {
+    public void registerNegative() throws MissingParameterException, UserNameInUseException, DataAccessException {
         UserData testUser2 = new UserData("TestUsername2", "TestPassword2", "TestEmail2@email.com");
         UserData testUser3 = new UserData("TestUsername3", null, "TestEmail3@email.com");
 

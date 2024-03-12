@@ -7,14 +7,13 @@ import service.serviceExceptions.MissingParameterException;
 import service.serviceExceptions.UserNameInUseException;
 
 public class RegistrationService {
-    private final UserDao userDao = new MemoryUserDao();
     private final AuthDao authDao = new MemoryAuthDao();
 
-    private final UserDao tempDao;
+    private final UserDao userDao;
 
     {
         try {
-            tempDao = new DatabaseUserDao();
+            userDao = new DatabaseUserDao();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -28,18 +27,13 @@ public class RegistrationService {
      * @throws UserNameInUseException If username already exits for another user
      * @throws MissingParameterException If any field of the UserData object is null
      */
-    public AuthResult register(UserData user) throws UserNameInUseException, MissingParameterException {
+    public AuthResult register(UserData user) throws UserNameInUseException, MissingParameterException, DataAccessException {
         if (user.username() == null || user.password() == null || user.email() == null) {
             throw new MissingParameterException("Error: bad request");
         }
 
         if (userDao.getUser(user.username()) == null) {
-            try {
-                userDao.createUser(user);
-                tempDao.createUser(user);
-            } catch (DataAccessException dataAccessException) {
-                System.out.println(dataAccessException.getMessage()); //TODO NEEDS TO BE FIXED!!!!
-            }
+            userDao.createUser(user);
 
             String authToken = authDao.createAuth(user.username());
 

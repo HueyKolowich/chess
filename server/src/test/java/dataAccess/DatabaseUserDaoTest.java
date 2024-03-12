@@ -21,30 +21,46 @@ class DatabaseUserDaoTest {
     }
 
     @Test
-    void getUser() {
+    void getUser() throws DataAccessException {
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser'");
+        temporaryTestScript("INSERT INTO user (username, password, email) VALUES (\"testUser\", \"12345678\", \"testUser@fake.org\")");
+        Assertions.assertEquals("testUser", databaseUserDao.getUser("testUser"));
+
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser'");
+        assertNull(databaseUserDao.getUser("testUser"));
     }
 
     @Test
-    void checkPassword() {
+    void checkPassword() throws DataAccessException {
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser'");
+        UserData user = new UserData("testUser", "12345678", "testUser@fake.org");
+        databaseUserDao.createUser(user);
+        assertTrue(databaseUserDao.checkPassword(user));
+
+        UserData badPasswordUser = new UserData("testUser", "abcdefg", "testUser@fake.org");
+        assertFalse(databaseUserDao.checkPassword(badPasswordUser));
     }
 
     @Test
     void createUser() throws DataAccessException {
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser'");
         UserData user = new UserData("testUser", "12345678", "testUser@fake.org");
         Assertions.assertDoesNotThrow(() -> databaseUserDao.createUser(user));
 
-        try (Connection connection = DatabaseManager.getConnection()) {
-            String statement = "DELETE FROM user WHERE username = 'testUser'";
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser'");
+    }
 
+    @Test
+    void clear() {
+    }
+
+    private void temporaryTestScript(String statement) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException sqlException) {
             throw new DataAccessException(String.format("Unable to configure database: %s", sqlException.getMessage()));
         }
-    }
-
-    @Test
-    void clear() {
     }
 }
