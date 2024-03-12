@@ -12,6 +12,13 @@ public class DatabaseUserDao implements UserDao {
         configureDatabase();
     }
 
+    /**
+     * Find user in the database
+     *
+     * @param username User being looked for
+     * @return Username string if found, null otherwise
+     * @throws DataAccessException If issue with DB connection
+     */
     @Override
     public String getUser(String username) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
@@ -33,6 +40,13 @@ public class DatabaseUserDao implements UserDao {
         return null;
     }
 
+    /**
+     * Checks to see if a given password matches that of a registered user
+     *
+     * @param user The user for which to check the password
+     * @return True if a match, false otherwise
+     * @throws DataAccessException If issue with the DB connection
+     */
     @Override
     public boolean checkPassword(UserData user) throws DataAccessException {
         String hashedStoredPassword = getHashedStoredPassword(user);
@@ -40,6 +54,12 @@ public class DatabaseUserDao implements UserDao {
         return bCryptPasswordEncoder.matches(user.password(), hashedStoredPassword);
     }
 
+    /**
+     * Inserts user object into the database
+     *
+     * @param user The user to be inserted
+     * @throws DataAccessException If issue with the DB connection
+     */
     @Override
     public void createUser(UserData user) throws DataAccessException {
         String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
@@ -49,12 +69,24 @@ public class DatabaseUserDao implements UserDao {
         executeUpdate(statement, user.username(), hashedPassword, user.email());
     }
 
+    /**
+     * Clears all users data in the database
+     *
+     * @throws DataAccessException If issue with the DB connection
+     */
     @Override
     public void clear() throws DataAccessException {
         String statement = "TRUNCATE TABLE user";
         executeUpdate(statement);
     }
 
+    /**
+     * Gets the hashed password for a user in the database
+     *
+     * @param user The user for whose password is being looked for
+     * @return The hashed password for a user in the database
+     * @throws DataAccessException If issue with the DB connection
+     */
     private static String getHashedStoredPassword(UserData user) throws DataAccessException {
         String hashedStoredPassword = null;
 
@@ -76,6 +108,13 @@ public class DatabaseUserDao implements UserDao {
         return hashedStoredPassword;
     }
 
+    /**
+     * Will execute scripts that affect the state of the DB, cleans the script before execution
+     *
+     * @param statement The script to be run
+     * @param params Objects to be parsed into the script if needed
+     * @throws DataAccessException If issue with the DB connection
+     */
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
@@ -102,6 +141,11 @@ public class DatabaseUserDao implements UserDao {
             """
     };
 
+    /**
+     * Creates the user table if missing
+     *
+     * @throws DataAccessException If issue with the DB connection
+     */
     private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection connection = DatabaseManager.getConnection()) {
