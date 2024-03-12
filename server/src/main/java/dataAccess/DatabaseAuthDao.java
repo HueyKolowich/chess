@@ -2,6 +2,7 @@ package dataAccess;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -30,7 +31,23 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
      */
     @Override
     public String getUsernameByAuth(String authToken) throws DataAccessException {
-        return null;
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String statement = "SELECT username FROM auth WHERE authToken=?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getString(1);
+                    }
+                }
+            }
+        } catch (SQLException sqlException) {
+            throw new DataAccessException(String.format("Unable to get user: %s", sqlException.getMessage()));
+        }
+
+        throw new DataAccessException("No username associated with this authToken");
     }
 
     /**
