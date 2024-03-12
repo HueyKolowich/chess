@@ -10,6 +10,16 @@ public class RegistrationService {
     private final UserDao userDao = new MemoryUserDao();
     private final AuthDao authDao = new MemoryAuthDao();
 
+    private final UserDao tempDao;
+
+    {
+        try {
+            tempDao = new DatabaseUserDao();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Registers a new user
      *
@@ -24,7 +34,12 @@ public class RegistrationService {
         }
 
         if (userDao.getUser(user.username()) == null) {
-            userDao.createUser(user);
+            try {
+                userDao.createUser(user);
+                tempDao.createUser(user);
+            } catch (DataAccessException dataAccessException) {
+                System.out.println(dataAccessException.getMessage()); //TODO NEEDS TO BE FIXED!!!!
+            }
 
             String authToken = authDao.createAuth(user.username());
 
