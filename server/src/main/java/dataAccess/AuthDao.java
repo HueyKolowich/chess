@@ -1,7 +1,5 @@
 package dataAccess;
 
-import chess.model.UserData;
-
 public interface AuthDao {
     String createAuth(String username);
     String getUsernameByAuth(String authToken) throws DataAccessException;

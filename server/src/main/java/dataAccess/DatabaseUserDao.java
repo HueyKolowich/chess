@@ -5,11 +5,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.*;
 
-public class DatabaseUserDao implements UserDao {
+public class DatabaseUserDao extends DatabaseDao implements UserDao {
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     public DatabaseUserDao() throws DataAccessException {
-        configureDatabase();
+        configureDatabase(createStatements);
     }
 
     /**
@@ -146,16 +146,16 @@ public class DatabaseUserDao implements UserDao {
      *
      * @throws DataAccessException If issue with the DB connection
      */
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection connection = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException sqlException) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", sqlException.getMessage()));
-        }
-    }
+//    private void configureDatabase() throws DataAccessException {
+//        DatabaseManager.createDatabase();
+//        try (Connection connection = DatabaseManager.getConnection()) {
+//            for (String statement : createStatements) {
+//                try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+//                    preparedStatement.executeUpdate();
+//                }
+//            }
+//        } catch (SQLException sqlException) {
+//            throw new DataAccessException(String.format("Unable to configure database: %s", sqlException.getMessage()));
+//        }
+//    }
 }
