@@ -35,14 +35,14 @@ class LogoutServiceTest {
 
     @BeforeAll
     public static void init() {
-        ClearService clearService = new ClearService();
-        clearService.delete();
-
-        logoutService = new LogoutService();
-        loginService = new LoginService();
-        RegistrationService registrationService = new RegistrationService();
-        testUser1 = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
         try {
+            ClearService clearService = new ClearService();
+            clearService.delete();
+
+            logoutService = new LogoutService();
+            loginService = new LoginService();
+            RegistrationService registrationService = new RegistrationService();
+            testUser1 = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
             registrationService.register(testUser1);
             loginResponse = loginService.login(testUser1);
         } catch (UserNameInUseException | MissingParameterException | UnauthorizedAuthException | DataAccessException e) {

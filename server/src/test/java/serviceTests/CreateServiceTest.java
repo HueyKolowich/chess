@@ -36,13 +36,13 @@ class CreateServiceTest {
     @BeforeAll
     public static void init() {
         //Initialization
-        ClearService clearService = new ClearService();
-        clearService.delete();
-
-        createService = new CreateService();
-        RegistrationService registrationService = new RegistrationService();
-        UserData testUser = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
         try {
+            ClearService clearService = new ClearService();
+            clearService.delete();
+
+            createService = new CreateService();
+            RegistrationService registrationService = new RegistrationService();
+            UserData testUser = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
             authResult = registrationService.register(testUser);
         } catch (UserNameInUseException | MissingParameterException | DataAccessException e) {
             System.err.println("Setup failed!");

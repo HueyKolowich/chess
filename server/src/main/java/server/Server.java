@@ -140,9 +140,14 @@ public class Server {
     }
 
     private Object delete(Request request, Response response) {
-        clearService.delete();
+        try {
+            clearService.delete();
 
-        response.status(200);
-        return "{}";
+            response.status(200);
+            return "{}";
+        } catch (DataAccessException dataAccessException) {
+            response.status(500);
+            return new Gson().toJson(new ErrorResult(dataAccessException.getMessage()));
+        }
     }
 }

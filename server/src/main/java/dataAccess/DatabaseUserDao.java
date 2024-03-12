@@ -35,8 +35,6 @@ public class DatabaseUserDao implements UserDao {
 
     @Override
     public boolean checkPassword(UserData user) throws DataAccessException {
-//        String hashedProvidedPassword = bCryptPasswordEncoder.encode(user.password());
-
         String hashedStoredPassword = getHashedStoredPassword(user);
 
         return bCryptPasswordEncoder.matches(user.password(), hashedStoredPassword);
@@ -52,8 +50,9 @@ public class DatabaseUserDao implements UserDao {
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws DataAccessException {
+        String statement = "TRUNCATE TABLE user";
+        executeUpdate(statement);
     }
 
     private static String getHashedStoredPassword(UserData user) throws DataAccessException {

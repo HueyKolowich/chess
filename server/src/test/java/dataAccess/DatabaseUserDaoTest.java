@@ -39,6 +39,8 @@ class DatabaseUserDaoTest {
 
         UserData badPasswordUser = new UserData("testUser", "abcdefg", "testUser@fake.org");
         assertFalse(databaseUserDao.checkPassword(badPasswordUser));
+
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser'");
     }
 
     @Test
@@ -51,7 +53,16 @@ class DatabaseUserDaoTest {
     }
 
     @Test
-    void clear() {
+    void clear() throws DataAccessException {
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser'");
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser1'");
+        temporaryTestScript("INSERT INTO user (username, password, email) VALUES (\"testUser\", \"12345678\", \"testUser@fake.org\")");
+        temporaryTestScript("INSERT INTO user (username, password, email) VALUES (\"testUser1\", \"abcdefg\", \"testUser1@fake.org\")");
+
+        Assertions.assertDoesNotThrow(() -> databaseUserDao.clear());
+
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser'");
+        temporaryTestScript("DELETE FROM user WHERE username = 'testUser1'");
     }
 
     private void temporaryTestScript(String statement) throws DataAccessException {

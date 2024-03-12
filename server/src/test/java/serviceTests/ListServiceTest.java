@@ -40,14 +40,14 @@ class ListServiceTest {
     @BeforeAll
     public static void init() {
         //Initialization
-        ClearService clearService = new ClearService();
-        clearService.delete();
-
-        listService = new ListService();
-        CreateService createService = new CreateService();
-        RegistrationService registrationService = new RegistrationService();
-        UserData testUser = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
         try {
+            ClearService clearService = new ClearService();
+            clearService.delete();
+
+            listService = new ListService();
+            CreateService createService = new CreateService();
+            RegistrationService registrationService = new RegistrationService();
+            UserData testUser = new UserData("TestUsername1", "TestPassword1", "TestEmail1@email.com");
             authResult = registrationService.register(testUser);
             createService.create(authResult.authToken(), "TestGame1");
         } catch (UserNameInUseException | MissingParameterException | UnauthorizedAuthException | DataAccessException e) {

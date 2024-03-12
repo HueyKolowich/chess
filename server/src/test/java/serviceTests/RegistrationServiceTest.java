@@ -30,7 +30,7 @@ class RegistrationServiceTest {
     */
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws DataAccessException {
         ClearService clearService = new ClearService();
         clearService.delete();
 
