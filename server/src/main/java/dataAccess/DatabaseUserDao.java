@@ -44,7 +44,7 @@ public class DatabaseUserDao implements UserDao {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException sqlException) {
-            throw new DataAccessException("Unable to configure database");
+            throw new DataAccessException(String.format("Unable to configure database: %s", sqlException.getMessage()));
         }
     }
 
@@ -68,7 +68,7 @@ public class DatabaseUserDao implements UserDao {
                 }
             }
         } catch (SQLException sqlException) {
-            throw new DataAccessException("Unable to configure database");
+            throw new DataAccessException(String.format("Unable to configure database: %s", sqlException.getMessage()));
         }
     }
 }
