@@ -4,7 +4,6 @@ import chess.model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.core.parameters.P;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
