@@ -1,9 +1,6 @@
 package service;
 
-import dataAccess.AuthDao;
-import dataAccess.GameDao;
-import dataAccess.MemoryAuthDao;
-import dataAccess.MemoryGameDao;
+import dataAccess.*;
 import service.resultRecords.CreateResult;
 import service.serviceExceptions.UnauthorizedAuthException;
 
@@ -21,7 +18,7 @@ public class CreateService {
      * @return CreateResult record containing the new gameID
      * @throws UnauthorizedAuthException If authToken is not valid
      */
-    public CreateResult create(String authToken, String gameName) throws UnauthorizedAuthException {
+    public CreateResult create(String authToken, String gameName) throws UnauthorizedAuthException, DataAccessException {
         if (!authDao.verifyAuth(authToken)) {
             throw new UnauthorizedAuthException("Error: unauthorized");
         }

@@ -39,7 +39,15 @@ class DatabaseAuthDaoTest {
     }
 
     @Test
-    void verifyAuth() {
+    void verifyAuth() throws DataAccessException {
+        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
+        temporaryTestScript("INSERT INTO auth (username, authToken) VALUES (\"testUser\", \"9946bad9-5210-44b2-a798-6a8ecee68948\")");
+
+        Assertions.assertTrue(databaseAuthDao.verifyAuth("9946bad9-5210-44b2-a798-6a8ecee68948"));
+
+        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
+
+        Assertions.assertFalse(databaseAuthDao.verifyAuth("9946bad9-5210-44b2-a798-6a8ecee68948"));
     }
 
     @Test

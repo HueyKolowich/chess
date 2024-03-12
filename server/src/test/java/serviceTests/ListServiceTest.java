@@ -57,7 +57,7 @@ class ListServiceTest {
     }
 
     @Test
-    void listPositive() throws UnauthorizedAuthException {
+    void listPositive() throws UnauthorizedAuthException, DataAccessException {
         ListResult listResult = listService.list(authResult.authToken());
         HashSet<ListResultBody> expectedBody = new HashSet<>();
         expectedBody.add(new ListResultBody(listResult.games().iterator().next().gameID(), null, null, "TestGame1"));

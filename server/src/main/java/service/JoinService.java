@@ -21,7 +21,7 @@ public class JoinService {
      * @throws AlreadyTakenException if playerColor for specified color is already taken
      * @throws MissingParameterException if no game is found for the gameID
      */
-    public void join(String authToken, String playerColor, int gameID) throws UnauthorizedAuthException, AlreadyTakenException, MissingParameterException {
+    public void join(String authToken, String playerColor, int gameID) throws UnauthorizedAuthException, AlreadyTakenException, MissingParameterException, DataAccessException {
         if (!authDao.verifyAuth(authToken)) {
             throw new UnauthorizedAuthException("Error: unauthorized");
         }

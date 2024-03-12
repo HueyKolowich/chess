@@ -1,10 +1,7 @@
 package service;
 
 import chess.model.GameData;
-import dataAccess.AuthDao;
-import dataAccess.GameDao;
-import dataAccess.MemoryAuthDao;
-import dataAccess.MemoryGameDao;
+import dataAccess.*;
 import service.resultRecords.ListResult;
 import service.serviceExceptions.UnauthorizedAuthException;
 
@@ -19,7 +16,7 @@ public class ListService {
      * @return ListResult record containing HashSet of ListResultBody records
      * @throws UnauthorizedAuthException If not authorized
      */
-    public ListResult list(String authToken) throws UnauthorizedAuthException {
+    public ListResult list(String authToken) throws UnauthorizedAuthException, DataAccessException {
         if (!authDao.verifyAuth(authToken)) {
             throw new UnauthorizedAuthException("Error: unauthorized");
         }

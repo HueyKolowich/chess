@@ -55,7 +55,23 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
      * @return
      */
     @Override
-    public boolean verifyAuth(String authToken) {
+    public boolean verifyAuth(String authToken) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String statement = "SELECT authToken FROM auth WHERE authToken=?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return true;
+                    }
+                }
+            }
+        } catch (SQLException sqlException) {
+            throw new DataAccessException(String.format("Unable to get user: %s", sqlException.getMessage()));
+        }
+
         return false;
     }
 
@@ -81,7 +97,8 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
             CREATE TABLE IF NOT EXISTS auth (
                 `username` varchar(256) NOT NULL,
                 `authToken` varchar(256) NOT NULL,
-                PRIMARY KEY (`username`)
+                PRIMARY KEY (`username`), 
+                INDEX (`authToken`)
             )
             """
     };

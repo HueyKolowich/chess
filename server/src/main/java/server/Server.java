@@ -75,6 +75,9 @@ public class Server {
         } catch (UnauthorizedAuthException unauthorizedAuthException) {
             response.status(401);
             return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
+        } catch (DataAccessException dataAccessException) {
+            response.status(500);
+            return new Gson().toJson(new ErrorResult(dataAccessException.getMessage()));
         }
     }
 
@@ -95,6 +98,9 @@ public class Server {
         } catch (AlreadyTakenException alreadyTakenException) {
             response.status(403);
             return new Gson().toJson(new ErrorResult(alreadyTakenException.getMessage()));
+        } catch (DataAccessException dataAccessException) {
+            response.status(500);
+            return new Gson().toJson(new ErrorResult(dataAccessException.getMessage()));
         }
     }
 
@@ -107,6 +113,9 @@ public class Server {
         } catch (UnauthorizedAuthException unauthorizedAuthException) {
             response.status(401);
             return new Gson().toJson(new ErrorResult(unauthorizedAuthException.getMessage()));
+        } catch (DataAccessException dataAccessException) {
+            response.status(500);
+            return new Gson().toJson(new ErrorResult(dataAccessException.getMessage()));
         }
     }
 

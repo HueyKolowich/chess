@@ -52,7 +52,7 @@ class CreateServiceTest {
 
 
     @Test
-    void createPositive() throws UnauthorizedAuthException {
+    void createPositive() throws UnauthorizedAuthException, DataAccessException {
         CreateResult createResponse  = createService.create(authResult.authToken(), "TestGame1");
         Assertions.assertTrue(createResponse.gameID() > 0);
     }
