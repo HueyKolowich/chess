@@ -5,6 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
+    public DatabaseAuthDao() throws DataAccessException {
+        configureDatabase(createStatements);
+    }
+
     /**
      * @param username
      * @return
@@ -54,7 +58,7 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
             """
             CREATE TABLE IF NOT EXISTS auth (
                 `username` varchar(256) NOT NULL,
-                `password` varchar(256) NOT NULL,
+                `authToken` varchar(256) NOT NULL,
                 PRIMARY KEY (`username`)
             )
             """
