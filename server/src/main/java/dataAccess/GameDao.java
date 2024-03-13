@@ -11,5 +11,5 @@ public interface GameDao {
     Collection<ListResultBody> listGames() throws DataAccessException;
     boolean findGame(int gameID) throws DataAccessException;
     void addPlayer(String playerColor, String username, int gameID) throws DataAccessException;
-    void clear();
+    void clear() throws DataAccessException;
 }

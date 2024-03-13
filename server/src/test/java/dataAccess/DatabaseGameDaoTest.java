@@ -8,8 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class DatabaseGameDaoTest {
     private static DatabaseGameDao databaseGameDao;
 
@@ -56,11 +54,30 @@ class DatabaseGameDaoTest {
     }
 
     @Test
-    void addPlayer() {
+    void addPlayer() throws DataAccessException {
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9999, \"testGame\", \"PLACEHOLDER\")");
+
+        Assertions.assertDoesNotThrow(() -> databaseGameDao.addPlayer("WHITE", "testUser", 9999));
+        Assertions.assertDoesNotThrow(() -> databaseGameDao.addPlayer("BLACK", "testUser", 9999));
+
+        Assertions.assertThrows(DataAccessException.class, () -> databaseGameDao.addPlayer("WHITE", "testUser", 9999));
+        Assertions.assertThrows(DataAccessException.class, () -> databaseGameDao.addPlayer("BLACK", "testUser", 9999));
+
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
     }
 
     @Test
-    void clear() {
+    void clear() throws DataAccessException {
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9998'");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9999, \"testGame\", \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9998, \"testGame\", \"PLACEHOLDER\")");
+
+        Assertions.assertDoesNotThrow(() -> databaseGameDao.clear());
+
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9998'");
     }
 
     private void temporaryTestScript(String statement) throws DataAccessException {
