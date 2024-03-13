@@ -72,7 +72,7 @@ public class DatabaseDao {
                 }
             }
         } catch (SQLException sqlException) {
-            throw new DataAccessException(String.format("Unable to get user: %s", sqlException.getMessage()));
+            throw new DataAccessException(String.format("Unable to SELECT: %s", sqlException.getMessage()));
         }
 
         return false;

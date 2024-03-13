@@ -1,10 +1,16 @@
 package dataAccess;
 
 import chess.ChessGame;
+import chess.model.GameData;
 import com.google.gson.Gson;
 import service.resultRecords.ListResultBody;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashSet;
 
 public class DatabaseGameDao extends DatabaseDao implements GameDao {
     public DatabaseGameDao() throws DataAccessException {
@@ -37,8 +43,30 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
     }
 
     @Override
-    public Collection<ListResultBody> listGames() {
-        return null;
+    public Collection<ListResultBody> listGames() throws DataAccessException {
+        Collection<ListResultBody> formattedGames = new HashSet<>();
+
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String statement = "SELECT * FROM game";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.executeQuery();
+
+                ResultSet resultSet = preparedStatement.getResultSet();
+
+                while (resultSet.next()) {
+                    formattedGames.add(new ListResultBody(resultSet.getInt(1),
+                            resultSet.getString(2),
+                            resultSet.getString(3),
+                            resultSet.getString(4)));
+                }
+
+            }
+        } catch (SQLException sqlException) {
+            throw new DataAccessException(String.format("Unable to get DB connection: %s", sqlException.getMessage()));
+        }
+
+        return formattedGames;
     }
 
     @Override

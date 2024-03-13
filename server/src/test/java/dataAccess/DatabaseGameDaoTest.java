@@ -29,7 +29,16 @@ class DatabaseGameDaoTest {
     }
 
     @Test
-    void listGames() {
+    void listGames() throws DataAccessException {
+        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9999, \"testGame\", \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9998, \"testGame\", \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9997, \"testGame\", \"PLACEHOLDER\")");
+
+        Assertions.assertDoesNotThrow(() -> databaseGameDao.listGames());
+
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9998'");
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9997'");
     }
 
     @Test
