@@ -25,7 +25,7 @@ class DatabaseGameDaoTest {
         Assertions.assertEquals(9999, databaseGameDao.createGame(9999, "testGame"));
         Assertions.assertThrows(DataAccessException.class, () -> databaseGameDao.createGame(9999, "otherGame"));
 
-//        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
     }
 
     @Test
@@ -33,7 +33,17 @@ class DatabaseGameDaoTest {
     }
 
     @Test
-    void findGame() {
+    void findGame() throws DataAccessException {
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9999, \"testGame\", \"PLACEHOLDER\")");
+
+        Assertions.assertTrue(databaseGameDao.findGame(9999));
+
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
+
+        Assertions.assertFalse(databaseGameDao.findGame(9999));
+
+        temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
     }
 
     @Test

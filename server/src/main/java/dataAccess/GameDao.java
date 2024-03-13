@@ -9,7 +9,7 @@ import java.util.Collection;
 public interface GameDao {
     int createGame(int gameID, String gameName) throws DataAccessException;
     Collection<ListResultBody> listGames();
-    boolean findGame(int gameID);
+    boolean findGame(int gameID) throws DataAccessException;
     void addPlayer(String playerColor, String username, int gameID) throws DataAccessException;
     void clear();
 }

@@ -42,8 +42,8 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
     }
 
     @Override
-    public boolean findGame(int gameID) {
-        return false;
+    public boolean findGame(int gameID) throws DataAccessException {
+        return selectItem("SELECT gameID FROM game WHERE gameID=?", gameID);
     }
 
     @Override
