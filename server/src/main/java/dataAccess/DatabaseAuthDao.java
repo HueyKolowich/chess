@@ -56,23 +56,7 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
      */
     @Override
     public boolean verifyAuth(String authToken) throws DataAccessException {
-        try (Connection connection = DatabaseManager.getConnection()) {
-            String statement = "SELECT authToken FROM auth WHERE authToken=?";
-
-            try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
-                preparedStatement.setString(1, authToken);
-
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    if (resultSet.next()) {
-                        return true;
-                    }
-                }
-            }
-        } catch (SQLException sqlException) {
-            throw new DataAccessException(String.format("Unable to get user: %s", sqlException.getMessage()));
-        }
-
-        return false;
+        return selectItem("SELECT authToken FROM auth WHERE authToken=?", authToken);
     }
 
     /**
@@ -81,17 +65,21 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
      */
     @Override
     public void clearAuth(String authToken) throws DataAccessException {
-        String statement = "DELETE FROM auth WHERE authToken=?";
+        if (!selectItem("SELECT authToken FROM auth WHERE authToken=?", authToken)) {
+            throw new DataAccessException("No authToken match found!");
+        }
 
-        executeUpdate(statement, authToken); //TODO I need to know somehow that no authToken was found to throw a DataAccessException
+        String statement = "DELETE FROM auth WHERE authToken=?";
+        executeUpdate(statement, authToken);
     }
 
     /**
      *
      */
     @Override
-    public void clear() {
-
+    public void clear() throws DataAccessException {
+        String statement = "TRUNCATE TABLE auth";
+        executeUpdate(statement);
     }
 
     private final String[] createStatements = {

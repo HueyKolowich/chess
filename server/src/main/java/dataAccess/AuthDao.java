@@ -5,5 +5,5 @@ public interface AuthDao {
     String getUsernameByAuth(String authToken) throws DataAccessException;
     boolean verifyAuth(String authToken) throws DataAccessException;
     void clearAuth(String authToken) throws DataAccessException;
-    void clear();
+    void clear() throws DataAccessException;
 }

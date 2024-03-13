@@ -39,7 +39,6 @@ public class DatabaseDao {
 
                 preparedStatement.executeUpdate();
 
-
                 ResultSet resultSet = preparedStatement.getGeneratedKeys();
                 if (resultSet.next()) {
                     return resultSet.getInt(1);
@@ -50,5 +49,24 @@ public class DatabaseDao {
         } catch (SQLException sqlException) {
             throw new DataAccessException(String.format("Unable to update database: %s", sqlException.getMessage()));
         }
+    }
+
+    protected boolean selectItem(String statement, Object whereItem) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+                if (whereItem instanceof String wi) { preparedStatement.setString(1, wi); }
+                else if (whereItem instanceof Integer wi) { preparedStatement.setInt(1, wi); }
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return true;
+                    }
+                }
+            }
+        } catch (SQLException sqlException) {
+            throw new DataAccessException(String.format("Unable to get user: %s", sqlException.getMessage()));
+        }
+
+        return false;
     }
 }

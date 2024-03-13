@@ -35,7 +35,7 @@ class DatabaseAuthDaoTest {
         Assertions.assertEquals("testUser", databaseAuthDao.getUsernameByAuth("9946bad9-5210-44b2-a798-6a8ecee68948"));
         Assertions.assertThrows(DataAccessException.class, () -> databaseAuthDao.getUsernameByAuth("9946bad9-5210-44b2-a798-aaaaaaaaaaaa"));
 
-//        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
+        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
     }
 
     @Test
@@ -51,12 +51,27 @@ class DatabaseAuthDaoTest {
     }
 
     @Test
-    void clearAuth() {
+    void clearAuth() throws DataAccessException {
+        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
+        temporaryTestScript("INSERT INTO auth (username, authToken) VALUES (\"testUser\", \"9946bad9-5210-44b2-a798-6a8ecee68948\")");
 
+        Assertions.assertDoesNotThrow(() -> databaseAuthDao.clearAuth("9946bad9-5210-44b2-a798-6a8ecee68948"));
+        Assertions.assertThrows(DataAccessException.class, () -> databaseAuthDao.clearAuth("9946bad9-5210-44b2-a798-6a8ecee68948"));
+
+        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
     }
 
     @Test
-    void clear() {
+    void clear() throws DataAccessException {
+        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
+        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser1'");
+        temporaryTestScript("INSERT INTO auth (username, authToken) VALUES (\"testUser\", \"9946bad9-5210-44b2-a798-6a8ecee68948\")");
+        temporaryTestScript("INSERT INTO auth (username, authToken) VALUES (\"testUser1\", \"9946bad9-5210-44b2-a798-6a8ecee68949\")");
+
+        Assertions.assertDoesNotThrow(() -> databaseAuthDao.clear());
+
+        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser'");
+        temporaryTestScript("DELETE FROM auth WHERE username = 'testUser1'");
     }
 
     private void temporaryTestScript(String statement) throws DataAccessException {
