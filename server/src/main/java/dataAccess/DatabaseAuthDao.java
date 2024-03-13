@@ -12,8 +12,12 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
     }
 
     /**
-     * @param username
-     * @return
+     * Creates and stores a new authToken string
+     * (if authToken already exists for a user then it is replaced)
+     *
+     * @param username username User for which the authToken will be generated
+     * @return The new authToken
+     * @throws DataAccessException If issue with DB connection
      */
     @Override
     public String createAuth(String username) throws DataAccessException {
@@ -25,9 +29,11 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
     }
 
     /**
-     * @param authToken
-     * @return
-     * @throws DataAccessException
+     * Find the username for a given authToken
+     *
+     * @param authToken authToken which provides the key for the username search
+     * @return String username
+     * @throws DataAccessException If issue with DB connection
      */
     @Override
     public String getUsernameByAuth(String authToken) throws DataAccessException {
@@ -51,8 +57,11 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
     }
 
     /**
-     * @param authToken
-     * @return
+     * Verifies that an authToken is held in the DB
+     *
+     * @param authToken the authToken being searched for
+     * @return True if found, false otherwise
+     * @throws DataAccessException If issue with DB connection
      */
     @Override
     public boolean verifyAuth(String authToken) throws DataAccessException {
@@ -60,8 +69,10 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
     }
 
     /**
-     * @param authToken
-     * @throws DataAccessException
+     * Removes occurrence of authToken in DB
+     *
+     * @param authToken The authToken to be removed
+     * @throws DataAccessException If no authToken match is found, or if issue with DB connection
      */
     @Override
     public void clearAuth(String authToken) throws DataAccessException {
@@ -74,7 +85,9 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
     }
 
     /**
+     * Clears DB auth table
      *
+     * @throws DataAccessException If issue with DB connection
      */
     @Override
     public void clear() throws DataAccessException {

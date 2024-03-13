@@ -51,6 +51,14 @@ public class DatabaseDao {
         }
     }
 
+    /**
+     * Queries the occurrence of row(s) in DB
+     *
+     * @param statement SELECT query to be used
+     * @param whereItem Object for WHERE clause (can be Integer or String)
+     * @return True if row(s) exists, false otherwise
+     * @throws DataAccessException If issue with DB connection
+     */
     protected boolean selectItem(String statement, Object whereItem) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
