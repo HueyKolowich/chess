@@ -91,7 +91,7 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
      */
     @Override
     public void clear() throws DataAccessException {
-        String statement = "TRUNCATE TABLE auth";
+        String statement = "TRUNCATE TABLE game";
         executeUpdate(statement);
     }
 
@@ -102,9 +102,11 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
                 `username` varchar(256) NOT NULL,
                 `authToken` varchar(256) NOT NULL,
                 PRIMARY KEY (`id`),
-                INDEX (`username`), 
+                INDEX (`username`),
                 INDEX (`authToken`)
             )
             """
+
+            //`id` int NOT NULL AUTO_INCREMENT, (Primary Key)
     };
 }

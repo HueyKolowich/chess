@@ -1,12 +1,18 @@
 package service;
 
-import dataAccess.AuthDao;
-import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDao;
+import dataAccess.*;
 import service.serviceExceptions.UnauthorizedAuthException;
 
 public class LogoutService {
-    private final AuthDao authDao = new MemoryAuthDao();
+    private final AuthDao authDao;
+
+    {
+        try {
+            authDao = new DatabaseAuthDao();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Logs the user (for which the authToken belongs) out

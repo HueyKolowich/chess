@@ -7,12 +7,12 @@ import service.serviceExceptions.MissingParameterException;
 import service.serviceExceptions.UserNameInUseException;
 
 public class RegistrationService {
-    private final AuthDao authDao = new MemoryAuthDao();
-
+    private final AuthDao authDao;
     private final UserDao userDao;
 
     {
         try {
+            authDao = new DatabaseAuthDao();
             userDao = new DatabaseUserDao();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);

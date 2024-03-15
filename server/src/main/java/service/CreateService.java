@@ -7,8 +7,17 @@ import service.serviceExceptions.UnauthorizedAuthException;
 import java.util.Random;
 
 public class CreateService {
-    private final AuthDao authDao = new MemoryAuthDao();
-    private final GameDao gameDao = new MemoryGameDao();
+    private final AuthDao authDao;
+    private final GameDao gameDao;
+
+    {
+        try {
+            authDao = new DatabaseAuthDao();
+            gameDao = new DatabaseGameDao();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Creates a new game

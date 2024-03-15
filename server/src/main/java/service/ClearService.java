@@ -4,12 +4,14 @@ import dataAccess.*;
 
 public class ClearService {
     private final UserDao userDao;
-    private final AuthDao authDao = new MemoryAuthDao();
-    private final GameDao gameDao = new MemoryGameDao();
+    private final AuthDao authDao;
+    private final GameDao gameDao;
 
     {
         try {
             userDao = new DatabaseUserDao();
+            authDao = new DatabaseAuthDao();
+            gameDao = new DatabaseGameDao();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }

@@ -6,8 +6,17 @@ import service.resultRecords.AuthResult;
 import service.serviceExceptions.UnauthorizedAuthException;
 
 public class LoginService {
-    private final UserDao userDao = new MemoryUserDao();
-    private final AuthDao authDao = new MemoryAuthDao();
+    private final UserDao userDao;
+    private final AuthDao authDao;
+
+    {
+        try {
+            userDao = new DatabaseUserDao();
+            authDao = new DatabaseAuthDao();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Logs a user in

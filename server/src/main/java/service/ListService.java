@@ -6,8 +6,17 @@ import service.resultRecords.ListResult;
 import service.serviceExceptions.UnauthorizedAuthException;
 
 public class ListService {
-    AuthDao authDao = new MemoryAuthDao();
-    GameDao gameDao = new MemoryGameDao();
+    AuthDao authDao;
+    GameDao gameDao;
+
+    {
+        try {
+            authDao = new DatabaseAuthDao();
+            gameDao = new DatabaseGameDao();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Lists all games
