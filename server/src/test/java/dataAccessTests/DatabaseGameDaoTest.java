@@ -1,5 +1,8 @@
-package dataAccess;
+package dataAccessTests;
 
+import dataAccess.DataAccessException;
+import dataAccess.DatabaseGameDao;
+import dataAccess.DatabaseManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

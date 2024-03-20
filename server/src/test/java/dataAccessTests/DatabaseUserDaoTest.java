@@ -1,6 +1,9 @@
-package dataAccess;
+package dataAccessTests;
 
 import chess.model.UserData;
+import dataAccess.DataAccessException;
+import dataAccess.DatabaseManager;
+import dataAccess.DatabaseUserDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
