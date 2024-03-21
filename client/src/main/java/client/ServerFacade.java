@@ -20,6 +20,7 @@ public class ServerFacade {
             line = scanner.nextLine();
 
             result = client.eval(line);
+            System.out.print(result);
         }
     }
 }
