@@ -62,16 +62,14 @@ public class ChessClient {
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
             try (InputStream responseBody = connection.getInputStream()) {
                 InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                System.out.println(new Gson().fromJson(inputStreamReader, HashMap.class));
+                return new Gson().fromJson(inputStreamReader, HashMap.class).toString();
             }
         } else {
             try (InputStream responseBody = connection.getErrorStream()) {
                 InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                System.out.println(new Gson().fromJson(inputStreamReader, HashMap.class));
+                return new Gson().fromJson(inputStreamReader, HashMap.class).toString();
             }
         }
-
-        return "";
     }
 
     private String help() {
