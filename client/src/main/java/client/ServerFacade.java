@@ -17,6 +17,12 @@ public class ServerFacade {
         String line;
 
         while (!result.equals("quit")) {
+            if (ChessClient.isLoggedIn) {
+                System.out.print("[LOGGED_IN] >>> ");
+            } else {
+                System.out.print("[LOGGED_OUT] >>> ");
+            }
+
             line = scanner.nextLine();
 
             result = client.eval(line);

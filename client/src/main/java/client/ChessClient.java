@@ -13,6 +13,7 @@ import java.util.HashMap;
 
 public class ChessClient {
     private final String serverUrl;
+    public static boolean isLoggedIn = false;
     public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
     }
@@ -23,12 +24,19 @@ public class ChessClient {
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
         try {
-            return switch (cmd) {
-                case "register" -> register(params);
-                case "login" -> login(params);
-                case "quit" -> "quit";
-                default -> help();
-            };
+            if (isLoggedIn) {
+                return switch (cmd) {
+                    case "quit" -> "quit";
+                    default -> loggedInHelp();
+                };
+            } else {
+                return switch (cmd) {
+                    case "register" -> register(params);
+                    case "login" -> login(params);
+                    case "quit" -> "quit";
+                    default -> loggedOutHelp();
+                };
+            }
         } catch (IOException ioException) {
             System.out.println("STILL NEED TO CORRECTLY HANDLE THIS ERROR"); //TODO DONT FORGET ABOUT THIS
             return null;
@@ -64,6 +72,10 @@ public class ChessClient {
         connection.connect();
 
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            if ((urlEndpoint.equals("/session") && requestMethod.equals("POST")) || urlEndpoint.equals("user")) {
+                isLoggedIn = true;
+            }
+
             try (InputStream responseBody = connection.getInputStream()) {
                 InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
 
@@ -77,10 +89,21 @@ public class ChessClient {
         }
     }
 
-    private String help() {
+    private String loggedOutHelp() {
         return """
                 - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                 - login <USERNAME> <PASSWORD> - to play chess
+                - quit - playing chess
+                - help - with possible commands
+                """;
+    }
+
+    private String loggedInHelp() {
+        return """
+                - create <NAME> - a game
+                - list - games
+                - join <ID> [WHITE | BLACK | <empty>] - a game
+                - observe <ID> - a game
                 - quit - playing chess
                 - help - with possible commands
                 """;
