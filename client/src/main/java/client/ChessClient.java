@@ -31,6 +31,7 @@ public class ChessClient {
                     case "logout" -> logout();
                     case "create" -> create(params);
                     case "list" -> list();
+                    case "join" -> join(params);
                     case "quit" -> "quit";
                     default -> loggedInHelp();
                 };
@@ -66,6 +67,10 @@ public class ChessClient {
 
     private String list() throws IOException {
         return connectionManager("/game", "GET", 0, null, null, this.sessionAuthToken);
+    }
+
+    private String join(String[] params) throws IOException {
+        return connectionManager("/game", "PUT", 2, params, new String[]{"gameID", "playerColor"}, this.sessionAuthToken);
     }
 
     private String connectionManager(String urlEndpoint, String requestMethod,

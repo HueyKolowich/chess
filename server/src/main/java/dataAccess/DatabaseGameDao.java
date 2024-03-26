@@ -105,7 +105,7 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
      */
     @Override
     public void addPlayer(String playerColor, String username, int gameID) throws DataAccessException {
-        if (playerColor.equals("WHITE")) {
+        if (playerColor.equalsIgnoreCase("WHITE")) {
             try (Connection connection = DatabaseManager.getConnection()) {
                 String statement = "SELECT whiteUsername FROM game WHERE gameID=?";
 

@@ -42,7 +42,7 @@ public class JoinService {
 
         try {
             if (playerColor != null) {
-                if (playerColor.equals("WHITE") || playerColor.equals("BLACK")) {
+                if (playerColor.equalsIgnoreCase("WHITE") || playerColor.equalsIgnoreCase("BLACK")) {
                     gameDao.addPlayer(playerColor, authDao.getUsernameByAuth(authToken), gameID);
                 } else {
                     throw new MissingParameterException("Error: bad request");
