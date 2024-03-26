@@ -28,7 +28,7 @@ public class RegistrationService {
      * @throws MissingParameterException If any field of the UserData object is null
      */
     public AuthResult register(UserData user) throws UserNameInUseException, MissingParameterException, DataAccessException {
-        if (user.username() == null || user.password() == null || user.email() == null) {
+        if (user == null || user.username() == null || user.password() == null || user.email() == null) {
             throw new MissingParameterException("Error: bad request");
         }
 
