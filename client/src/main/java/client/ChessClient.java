@@ -10,7 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 public class ChessClient {
     private final String serverUrl;
@@ -26,32 +25,37 @@ public class ChessClient {
         try {
             return switch (cmd) {
                 case "register" -> register(params);
+                case "login" -> login(params);
                 case "quit" -> "quit";
                 default -> help();
             };
         } catch (IOException ioException) {
-            System.out.println("STILL NEED TO CORRECTLY HANDLE THIS ERROR");
+            System.out.println("STILL NEED TO CORRECTLY HANDLE THIS ERROR"); //TODO DONT FORGET ABOUT THIS
             return null;
         }
     }
 
     private String register(String[] params) throws IOException {
-        URL url = new URL(this.serverUrl + "/user");
+        return connectionManager("/user", "POST", 3, params, new String[]{"username", "password", "email"});
+    }
+
+    private String login(String[] params) throws IOException {
+        return connectionManager("/session", "POST", 2, params, new String[]{"username", "password"});
+    }
+
+    private String connectionManager(String urlEndpoint, String requestMethod, int numParams, String[] params, String[] paramKeys) throws IOException {
+        URL url = new URL(this.serverUrl + urlEndpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
+        connection.setRequestMethod(requestMethod);
+
+        HashMap<String, String> body = new HashMap<>();
 
         connection.setDoOutput(true);
-        String username = params.length > 0 ? params[0] : null;
-        String password = params.length > 1 ? params[1]: null;
-        String email = params.length > 2 ? params[2]: null;
+        for (int i = 0; i < numParams; i++) {
+            String temp = params.length > i ? params[i] : null;
+            body.put(paramKeys[i], temp);
+        }
 
-        HashMap<String, String> body = new HashMap<String, String>(){
-            {
-                put("username", username);
-                put("password", password);
-                put("email", email);
-            }
-        };
         try (OutputStream outputStream = connection.getOutputStream()) {
             String jsonBody = new Gson().toJson(body, HashMap.class);
             outputStream.write(jsonBody.getBytes());
@@ -62,7 +66,8 @@ public class ChessClient {
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
             try (InputStream responseBody = connection.getInputStream()) {
                 InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                return new Gson().fromJson(inputStreamReader, HashMap.class).toString();
+
+                return new Gson().fromJson(inputStreamReader, HashMap.class).toString() + '\n';
             }
         } else {
             try (InputStream responseBody = connection.getErrorStream()) {
