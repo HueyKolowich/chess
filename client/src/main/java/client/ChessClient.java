@@ -30,6 +30,7 @@ public class ChessClient {
                 return switch (cmd) {
                     case "logout" -> logout();
                     case "create" -> create(params);
+                    case "list" -> list();
                     case "quit" -> "quit";
                     default -> loggedInHelp();
                 };
@@ -61,6 +62,10 @@ public class ChessClient {
 
     private String create(String[] params) throws IOException {
         return connectionManager("/game", "POST", 1, params, new String[]{"gameName"}, this.sessionAuthToken);
+    }
+
+    private String list() throws IOException {
+        return connectionManager("/game", "GET", 0, null, null, this.sessionAuthToken);
     }
 
     private String connectionManager(String urlEndpoint, String requestMethod,
