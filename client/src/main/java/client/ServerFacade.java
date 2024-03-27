@@ -1,6 +1,10 @@
 package client;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+
+import static ui.EscapeSequences.*;
 
 public class ServerFacade {
     private final ChessClient client;
@@ -10,7 +14,11 @@ public class ServerFacade {
     }
 
     public void run() {
-        System.out.println("Welcome to 240 chess. Type help to get started.");
+        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
+
+        out.print("Welcome to 240 chess. Type help to get started.\n");
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
@@ -18,15 +26,15 @@ public class ServerFacade {
 
         while (!result.equals("quit")) {
             if (ChessClient.isLoggedIn) {
-                System.out.print("[LOGGED_IN] >>> ");
+                out.print("[LOGGED_IN] >>> ");
             } else {
-                System.out.print("[LOGGED_OUT] >>> ");
+                out.print("[LOGGED_OUT] >>> ");
             }
 
             line = scanner.nextLine();
 
             result = client.eval(line);
-            System.out.print(result);
+            out.print(result);
         }
     }
 }

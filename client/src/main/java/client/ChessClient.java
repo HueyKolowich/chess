@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import ui.ChessUI;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,6 +72,7 @@ public class ChessClient {
     }
 
     private String join(String[] params) throws IOException {
+        ChessUI.main(null);
         return connectionManager("/game", "PUT", 2, params, new String[]{"gameID", "playerColor"}, this.sessionAuthToken);
     }
 
