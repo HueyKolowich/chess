@@ -91,7 +91,11 @@ public class DatabaseAuthDao extends DatabaseDao implements AuthDao {
      */
     @Override
     public void clear() throws DataAccessException {
-        String statement = "TRUNCATE TABLE game";
+        String statement = "TRUNCATE TABLE auth";
+        executeUpdate(statement);
+
+        statement = "INSERT INTO auth (username, authToken) VALUES ('system_list', '0192837465')";
+
         executeUpdate(statement);
     }
 

@@ -155,7 +155,7 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
      */
     @Override
     public void clear() throws DataAccessException {
-        String statement = "TRUNCATE TABLE auth";
+        String statement = "TRUNCATE TABLE game";
         executeUpdate(statement);
     }
 }
