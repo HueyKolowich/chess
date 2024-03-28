@@ -16,6 +16,7 @@ public class ChessClient {
     public static boolean isLoggedIn = false;
     private final String serverUrl;
     private String sessionAuthToken = null;
+    private HashMap result;
 
     public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
@@ -52,35 +53,68 @@ public class ChessClient {
     }
 
     private String register(String[] params) throws IOException {
-        return connectionManager("/user", "POST", 3, params, new String[]{"username", "password", "email"}, null);
+        result = connectionManager("/user", "POST", 3, params, new String[]{"username", "password", "email"}, null);
+
+        if (result.containsKey("message")) {
+            return (String) result.get("message") + '\n';
+        } else { return ""; }
     }
 
     private String login(String[] params) throws IOException {
-        return connectionManager("/session", "POST", 2, params, new String[]{"username", "password"}, null);
+        result = connectionManager("/session", "POST", 2, params, new String[]{"username", "password"}, null);
+
+        if (result.containsKey("message")) {
+            return (String) result.get("message") + '\n';
+        } else { return ""; }
     }
 
     private String logout() throws IOException {
-        return connectionManager("/session", "DELETE", 0, null, null, this.sessionAuthToken);
+        result = connectionManager("/session", "DELETE", 0, null, null, this.sessionAuthToken);
+
+        if (result.containsKey("message")) {
+            return (String) result.get("message") + '\n';
+        } else { return ""; }
     }
 
     private String create(String[] params) throws IOException {
-        return connectionManager("/game", "POST", 1, params, new String[]{"gameName"}, this.sessionAuthToken);
+        result = connectionManager("/game", "POST", 1, params, new String[]{"gameName"}, this.sessionAuthToken);
+
+        if (result.containsKey("message")) {
+            return (String) result.get("message") + '\n';
+        } else { return ""; }
     }
 
     private String list() throws IOException {
-        return connectionManager("/game", "GET", 0, null, null, this.sessionAuthToken);
+        result = connectionManager("/game", "GET", 0, null, null, this.sessionAuthToken);
+
+        if (result.containsKey("message")) {
+            return (String) result.get("message") + '\n';
+        } else { return ""; }
     }
 
     private String join(String[] params) throws IOException {
-        ChessUI.main(null);
-        return connectionManager("/game", "PUT", 2, params, new String[]{"gameID", "playerColor"}, this.sessionAuthToken);
+        result = connectionManager("/game", "PUT", 2, params, new String[]{"gameID", "playerColor"}, this.sessionAuthToken);
+
+        if (result.containsKey("message")) {
+            return (String) result.get("message") + '\n';
+        } else {
+            ChessUI.main(null);
+            return "";
+        }
     }
 
     private String observe(String[] params) throws IOException {
-        return connectionManager("/game", "PUT", 1, params, new String[]{"gameID"}, this.sessionAuthToken);
+        result = connectionManager("/game", "PUT", 1, params, new String[]{"gameID"}, this.sessionAuthToken);
+
+        if (result.containsKey("message")) {
+            return (String) result.get("message") + '\n';
+        } else {
+            ChessUI.main(null);
+            return "";
+        }
     }
 
-    private String connectionManager(String urlEndpoint, String requestMethod,
+    private HashMap connectionManager(String urlEndpoint, String requestMethod,
                                      int numBodyParams, String[] bodyParams, String[] bodyParamKeys, String headerParam) throws IOException {
         URL url = new URL(this.serverUrl + urlEndpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -127,12 +161,12 @@ public class ChessClient {
                     this.sessionAuthToken = (String) responseMap.get("authToken");
                 }
 
-                return responseMap.toString() + '\n';
+                return responseMap;
             }
         } else {
             try (InputStream responseBody = connection.getErrorStream()) {
                 inputStreamReader = new InputStreamReader(responseBody);
-                return new Gson().fromJson(inputStreamReader, HashMap.class).toString() + '\n';
+                return new Gson().fromJson(inputStreamReader, HashMap.class);
             }
         }
     }
