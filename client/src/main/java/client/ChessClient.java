@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import ui.ChessUI;
 
 import java.io.IOException;
@@ -9,17 +10,37 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
 
 public class ChessClient {
     public static boolean isLoggedIn = false;
     private final String serverUrl;
     private String sessionAuthToken = null;
     private HashMap result;
+    private HashMap<Integer, Integer> clientGameNumberingSeries = new HashMap<>();
+    private int currentPositionInGameNumberingSeries = 1;
 
     public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
+
+        try {
+            result = connectionManager("/game", "GET", 0, null, null, "0192837465");
+
+            ArrayList games = (ArrayList) result.get("games");
+            for (Object game : games) {
+                LinkedTreeMap gameLTM = (LinkedTreeMap) game;
+
+                Double tempGameIDObject = (Double) gameLTM.get("gameID");
+
+                clientGameNumberingSeries.put(currentPositionInGameNumberingSeries, tempGameIDObject.intValue());
+                currentPositionInGameNumberingSeries++;
+            }
+        } catch (IOException ioException) {
+            System.out.println("Could not assign numbering series to stored games!");
+        }
     }
 
     public String eval(String input) {
@@ -81,7 +102,14 @@ public class ChessClient {
 
         if (result.containsKey("message")) {
             return (String) result.get("message") + '\n';
-        } else { return ""; }
+        } else {
+            Double tempGameIDObject = (Double) result.get("gameID");
+
+            clientGameNumberingSeries.put(currentPositionInGameNumberingSeries, tempGameIDObject.intValue());
+            currentPositionInGameNumberingSeries++;
+
+            return "Created game number: " + (currentPositionInGameNumberingSeries - 1) + '\n';
+        }
     }
 
     private String list() throws IOException {
@@ -89,10 +117,30 @@ public class ChessClient {
 
         if (result.containsKey("message")) {
             return (String) result.get("message") + '\n';
-        } else { return ""; }
+        } else {
+            StringBuilder resultString = new StringBuilder();
+            ArrayList<LinkedTreeMap> games = (ArrayList) result.get("games");
+
+            for (Integer position : clientGameNumberingSeries.keySet()) {
+                resultString.append(position);
+                resultString.append(" : ");
+
+                for (LinkedTreeMap game : games) {
+                    if (game.containsValue(clientGameNumberingSeries.get(position).doubleValue())) {
+                        resultString.append(game.toString());
+                    }
+                }
+
+                resultString.append('\n');
+            }
+
+            return resultString.toString();
+        }
     }
 
     private String join(String[] params) throws IOException {
+        params[0] = String.valueOf(clientGameNumberingSeries.get(Integer.parseInt(params[0])));
+
         result = connectionManager("/game", "PUT", 2, params, new String[]{"gameID", "playerColor"}, this.sessionAuthToken);
 
         if (result.containsKey("message")) {
