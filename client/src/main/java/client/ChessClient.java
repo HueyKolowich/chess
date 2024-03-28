@@ -139,7 +139,9 @@ public class ChessClient {
     }
 
     private String join(String[] params) throws IOException {
-        params[0] = String.valueOf(clientGameNumberingSeries.get(Integer.parseInt(params[0])));
+        if (clientGameNumberingSeries.get(Integer.parseInt(params[0])) != null) {
+            params[0] = String.valueOf(clientGameNumberingSeries.get(Integer.parseInt(params[0])));
+        }
 
         result = connectionManager("/game", "PUT", 2, params, new String[]{"gameID", "playerColor"}, this.sessionAuthToken);
 
