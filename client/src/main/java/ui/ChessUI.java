@@ -20,13 +20,13 @@ public class ChessUI {
         out.print(ERASE_SCREEN);
 
         drawHeaders(out, horizontalHeadersOrientation1);
-        drawChessBoard(out, verticalHeadersOrientation1);
+        drawChessBoard(out, verticalHeadersOrientation1, 1);
         drawHeaders(out, horizontalHeadersOrientation1);
 
         out.println();
 
         drawHeaders(out, horizontalHeadersOrientation2);
-        drawChessBoard(out, verticalHeadersOrientation2);
+        drawChessBoard(out, verticalHeadersOrientation2, 2);
         drawHeaders(out, horizontalHeadersOrientation2);
 
         out.print(SET_BG_COLOR_BLACK);
@@ -72,17 +72,13 @@ public class ChessUI {
         out.print(EMPTY);
     }
 
-    private static void drawChessBoard(PrintStream out, String[] verticalHeaders) {
+    private static void drawChessBoard(PrintStream out, String[] verticalHeaders, int orientationNumber) {
+        int alternation;
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
-            drawRowOfSquares(out, boardRow, verticalHeaders[boardRow]);
-        }
-    }
+            printVerticalHeaderText(out, verticalHeaders[boardRow]);
 
-    private static void drawRowOfSquares(PrintStream out, int alternation, String verticalHeader) {
-        for (int squareRow = 0; squareRow < 1; ++squareRow) {
-            printVerticalHeaderText(out, verticalHeader);
-
+            alternation = boardRow;
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
                 if (alternation % 2 == 0) {
                     setWhite(out);
@@ -91,16 +87,52 @@ public class ChessUI {
                 }
                 alternation++;
 
-                out.print(EMPTY.repeat(SQUARE_SIZE_IN_CHARS));
+                out.print(EMPTY);
+                checkSquareForPiece(out, boardRow, boardCol, orientationNumber);
+                out.print(EMPTY);
 
                 setBlack(out);
             }
 
-            printVerticalHeaderText(out, verticalHeader);
+            printVerticalHeaderText(out, verticalHeaders[boardRow]);
 
             setBlack(out);
             out.println();
         }
+    }
+
+    private static void checkSquareForPiece(PrintStream out, int row, int column, int orientationNumber) {
+        if (row == 0) {
+            out.print(SET_TEXT_COLOR_RED);
+
+            if (orientationNumber == 2 && (column == 3)) {
+                out.print("Q");
+            } else if (orientationNumber == 2 && (column == 4)) {
+                out.print("K");
+            } else {
+                out.print(tempPositioningOrientation1[column]);
+            }
+        } else if (row == 1) {
+            out.print(SET_TEXT_COLOR_RED);
+            out.print("P");
+        } else if (row == 6) {
+            out.print(SET_TEXT_COLOR_BLUE);
+            out.print("P");
+        } else if (row == 7) {
+            out.print(SET_TEXT_COLOR_BLUE);
+
+            if (orientationNumber == 2 && (column == 3)) {
+                out.print("Q");
+            } else if (orientationNumber == 2 && (column == 4)) {
+                out.print("K");
+            } else {
+                out.print(tempPositioningOrientation1[column]);
+            }
+        } else {
+            out.print(EMPTY);
+        }
+
+        out.print(SET_TEXT_COLOR_WHITE);
     }
 
     private static void setWhite(PrintStream out) {
@@ -112,4 +144,7 @@ public class ChessUI {
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_BLACK);
     }
+
+    private static final String[] tempPositioningOrientation1 = {"R", "N", "B", "K", "Q", "B", "N", "R"};
+    private static final String[] getTempPositioningOrientation2 = {"R", "N", "B", "Q", "K", "B", "N", "R"};
 }
