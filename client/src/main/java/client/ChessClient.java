@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Set;
 
 public class ChessClient {
     public static boolean isLoggedIn = false;
@@ -21,6 +20,7 @@ public class ChessClient {
     private String sessionAuthToken = null;
     private HashMap result;
     private HashMap<Integer, Integer> clientGameNumberingSeries = new HashMap<>();
+
     private int currentPositionInGameNumberingSeries = 1;
 
     public ChessClient(String serverUrl) {
@@ -68,7 +68,7 @@ public class ChessClient {
                 };
             }
         } catch (IOException ioException) {
-            System.out.println("STILL NEED TO CORRECTLY HANDLE THIS ERROR"); //TODO DONT FORGET ABOUT THIS
+            System.out.println("Could not establish connection with server! Please close client and try again.\n");
             return null;
         }
     }
@@ -122,16 +122,16 @@ public class ChessClient {
             ArrayList<LinkedTreeMap> games = (ArrayList) result.get("games");
 
             for (Integer position : clientGameNumberingSeries.keySet()) {
-                resultString.append(position);
-                resultString.append(" : ");
-
                 for (LinkedTreeMap game : games) {
                     if (game.containsValue(clientGameNumberingSeries.get(position).doubleValue())) {
-                        resultString.append(game.toString());
+                        resultString.append(position);
+                        resultString.append(" : ");
+
+                        resultString.append(game);
+
+                        resultString.append('\n');
                     }
                 }
-
-                resultString.append('\n');
             }
 
             return resultString.toString();
@@ -154,6 +154,10 @@ public class ChessClient {
     }
 
     private String observe(String[] params) throws IOException {
+        if (clientGameNumberingSeries.get(Integer.parseInt(params[0])) != null) {
+            params[0] = String.valueOf(clientGameNumberingSeries.get(Integer.parseInt(params[0])));
+        }
+
         result = connectionManager("/game", "PUT", 1, params, new String[]{"gameID"}, this.sessionAuthToken);
 
         if (result.containsKey("message")) {
@@ -170,14 +174,14 @@ public class ChessClient {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod(requestMethod);
 
-        if (headerParam != null) { //TODO can only handle authentication header... not sure if I will end up needing more
+        if (headerParam != null) {
             connection.setDoOutput(true);
 
             connection.setRequestProperty("authorization", headerParam);
         }
 
         if (numBodyParams > 0) {
-            HashMap<String, String> body = new HashMap<>(); //TODO Could be an issue if not String type body fields
+            HashMap<String, String> body = new HashMap<>();
 
             connection.setDoOutput(true);
             for (int i = 0; i < numBodyParams; i++) {
@@ -194,7 +198,7 @@ public class ChessClient {
         connection.connect();
 
         InputStreamReader inputStreamReader;
-        HashMap responseMap; //TODO this could be a problem in the future if response contains an int... gameID? POSSIBLY FIXED
+        HashMap responseMap;
 
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
             if ((urlEndpoint.equals("/session") && requestMethod.equals("POST")) || urlEndpoint.equals("/user")) {
@@ -240,5 +244,13 @@ public class ChessClient {
                 - quit - playing chess
                 - help - with possible commands
                 """;
+    }
+
+    public void setIsLoggedIn(boolean isLoggedIn) {
+        ChessClient.isLoggedIn = isLoggedIn;
+    }
+
+    public int getCurrentPositionInGameNumberingSeries() {
+        return currentPositionInGameNumberingSeries;
     }
 }
