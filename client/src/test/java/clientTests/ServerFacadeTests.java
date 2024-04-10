@@ -1,6 +1,6 @@
 package clientTests;
 
-import client.ChessClient;
+import client.ServerFacade;
 import org.junit.jupiter.api.*;
 import server.Server;
 import dataAccess.*;
@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 public class ServerFacadeTests {
     private static Server server;
-    private static ChessClient chessClient;
+    private static ServerFacade serverFacade;
 
     private String loggedOutHelpSourceOfTruth() {
         return """
@@ -40,7 +40,7 @@ public class ServerFacadeTests {
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
 
-        chessClient = new ChessClient("http://localhost:" + port);
+        serverFacade = new ServerFacade("http://localhost:" + port);
     }
 
     @BeforeEach
@@ -49,7 +49,7 @@ public class ServerFacadeTests {
         temporaryTestScript("DELETE FROM game WHERE gameName = 'testGame'");
         temporaryTestScript("DELETE FROM game WHERE gameName = 'testGame2'");
 
-        chessClient.setIsLoggedIn(false);
+        serverFacade.setIsLoggedIn(false);
     }
 
     @AfterAll
@@ -63,142 +63,142 @@ public class ServerFacadeTests {
         temporaryTestScript("DELETE FROM game WHERE gameName = 'testGame'");
         temporaryTestScript("DELETE FROM game WHERE gameName = 'testGame2'");
 
-        chessClient.setIsLoggedIn(false);
+        serverFacade.setIsLoggedIn(false);
     }
 
     @Test
     public void loggedOutHelpPositive() {
-        Assertions.assertEquals(this.loggedOutHelpSourceOfTruth(), chessClient.eval("help"));
+        Assertions.assertEquals(this.loggedOutHelpSourceOfTruth(), serverFacade.eval("help"));
     }
     @Test
     public void loggedOutHelpNegative() {
-        Assertions.assertDoesNotThrow(() -> chessClient.eval("help"));
+        Assertions.assertDoesNotThrow(() -> serverFacade.eval("help"));
     }
 
     @Test
     public void registerPositive() throws DataAccessException {
-        Assertions.assertEquals("", chessClient.eval("register testUser 1 email"));
+        Assertions.assertEquals("", serverFacade.eval("register testUser 1 email"));
     }
     @Test
     public void registerNegative() throws DataAccessException {
         temporaryTestScript("INSERT INTO user (username, password, email) VALUES ('testUser', '1', 'email')");
 
-        Assertions.assertEquals("Error: already taken\n", chessClient.eval("register testUser 1 email"));
+        Assertions.assertEquals("Error: already taken\n", serverFacade.eval("register testUser 1 email"));
     }
 
     @Test
     public void loginPositive() throws DataAccessException {
-        chessClient.eval("register testUser 1 email");
-        chessClient.setIsLoggedIn(false);
+        serverFacade.eval("register testUser 1 email");
+        serverFacade.setIsLoggedIn(false);
 
-        Assertions.assertEquals("", chessClient.eval("login testUser 1"));
+        Assertions.assertEquals("", serverFacade.eval("login testUser 1"));
     }
     @Test
     public void loginNegative() {
-        chessClient.eval("register testUser 1 email");
-        chessClient.setIsLoggedIn(false);
+        serverFacade.eval("register testUser 1 email");
+        serverFacade.setIsLoggedIn(false);
 
-        Assertions.assertEquals("Error: unauthorized\n", chessClient.eval("login testUser 2"));
+        Assertions.assertEquals("Error: unauthorized\n", serverFacade.eval("login testUser 2"));
     }
 
     @Test
     public void loggedInHelpPositive() {
-        chessClient.setIsLoggedIn(true);
+        serverFacade.setIsLoggedIn(true);
 
-        Assertions.assertEquals(this.loggedInHelpSourceOfTruth(), chessClient.eval("help"));
+        Assertions.assertEquals(this.loggedInHelpSourceOfTruth(), serverFacade.eval("help"));
     }
     @Test
     public void loggedInHelpNegative() {
-        chessClient.setIsLoggedIn(true);
+        serverFacade.setIsLoggedIn(true);
 
-        Assertions.assertDoesNotThrow(() -> chessClient.eval("help"));
+        Assertions.assertDoesNotThrow(() -> serverFacade.eval("help"));
     }
 
     @Test
     public void observePositive() {
-        chessClient.eval("register testUser 1 email");
-        chessClient.eval("create testGame");
-        int gameNumber = chessClient.getCurrentPositionInGameNumberingSeries() - 1;
+        serverFacade.eval("register testUser 1 email");
+        serverFacade.eval("create testGame");
+        int gameNumber = serverFacade.getCurrentPositionInGameNumberingSeries() - 1;
 
-        Assertions.assertEquals("", chessClient.eval("observe " + gameNumber));
+        Assertions.assertEquals("", serverFacade.eval("observe " + gameNumber));
     }
     @Test
     public void observeNegative() {
-        chessClient.eval("register testUser 1 email");
-        chessClient.eval("create testGame");
-        int gameNumber = chessClient.getCurrentPositionInGameNumberingSeries() - 1;
+        serverFacade.eval("register testUser 1 email");
+        serverFacade.eval("create testGame");
+        int gameNumber = serverFacade.getCurrentPositionInGameNumberingSeries() - 1;
         gameNumber++;
 
-        Assertions.assertEquals("Error: bad request\n", chessClient.eval("observe " + gameNumber));
+        Assertions.assertEquals("Error: bad request\n", serverFacade.eval("observe " + gameNumber));
     }
 
     @Test
     public void joinPositive() {
-        chessClient.eval("register testUser 1 email");
-        chessClient.eval("create testGame");
-        int gameNumber = chessClient.getCurrentPositionInGameNumberingSeries() - 1;
+        serverFacade.eval("register testUser 1 email");
+        serverFacade.eval("create testGame");
+        int gameNumber = serverFacade.getCurrentPositionInGameNumberingSeries() - 1;
 
-        Assertions.assertEquals("", chessClient.eval("join " + gameNumber + " WHITE"));
+        Assertions.assertEquals("", serverFacade.eval("join " + gameNumber + " WHITE"));
     }
     @Test
     public void joinNegative() {
-        chessClient.eval("register testUser 1 email");
-        chessClient.eval("create testGame");
-        int gameNumber = chessClient.getCurrentPositionInGameNumberingSeries() - 1;
+        serverFacade.eval("register testUser 1 email");
+        serverFacade.eval("create testGame");
+        int gameNumber = serverFacade.getCurrentPositionInGameNumberingSeries() - 1;
 
-        Assertions.assertEquals("Error: bad request\n", chessClient.eval("join " + gameNumber + " BLUE"));
+        Assertions.assertEquals("Error: bad request\n", serverFacade.eval("join " + gameNumber + " BLUE"));
 
         gameNumber++;
 
-        Assertions.assertEquals("Error: bad request\n", chessClient.eval("join " + gameNumber + " WHITE"));
+        Assertions.assertEquals("Error: bad request\n", serverFacade.eval("join " + gameNumber + " WHITE"));
     }
 
     @Test
     public void listPositive() {
-        chessClient.eval("register testUser 1 email");
-        chessClient.eval("create testGame");
-        chessClient.eval("create testGame2");
+        serverFacade.eval("register testUser 1 email");
+        serverFacade.eval("create testGame");
+        serverFacade.eval("create testGame2");
 
-        Assertions.assertTrue(chessClient.eval("list").contains("testgame") && chessClient.eval("list").contains("testgame2"));
+        Assertions.assertTrue(serverFacade.eval("list").contains("testgame") && serverFacade.eval("list").contains("testgame2"));
     }
     @Test
     public void listNegative() {
-        chessClient.eval("register testUser 1 email");
+        serverFacade.eval("register testUser 1 email");
 
-        Assertions.assertEquals("", chessClient.eval("list"));
+        Assertions.assertEquals("", serverFacade.eval("list"));
 
-        chessClient.eval("create testGame");
+        serverFacade.eval("create testGame");
 
-        Assertions.assertNotNull(chessClient.eval("list"));
+        Assertions.assertNotNull(serverFacade.eval("list"));
     }
 
     @Test
     public void createPositive() {
-        chessClient.eval("register testUser 1 email");
-        int gameNumber = chessClient.getCurrentPositionInGameNumberingSeries();
+        serverFacade.eval("register testUser 1 email");
+        int gameNumber = serverFacade.getCurrentPositionInGameNumberingSeries();
 
-        Assertions.assertEquals("Created game number: " + gameNumber + "\n", chessClient.eval("create testGame"));
+        Assertions.assertEquals("Created game number: " + gameNumber + "\n", serverFacade.eval("create testGame"));
     }
     @Test
     public void createNegative() {
-        chessClient.eval("register testUser 1 email");
-        int gameNumber = chessClient.getCurrentPositionInGameNumberingSeries();
+        serverFacade.eval("register testUser 1 email");
+        int gameNumber = serverFacade.getCurrentPositionInGameNumberingSeries();
 
-        Assertions.assertEquals("Unable to update database: No value specified for parameter 2\n", chessClient.eval("create"));
+        Assertions.assertEquals("Unable to update database: No value specified for parameter 2\n", serverFacade.eval("create"));
     }
 
     @Test
     public void logoutPositive() {
-        chessClient.eval("register testUser 1 email");
+        serverFacade.eval("register testUser 1 email");
 
-        Assertions.assertEquals("", chessClient.eval("logout"));
+        Assertions.assertEquals("", serverFacade.eval("logout"));
     }
     @Test
     public void logoutNegative() {
-        chessClient.eval("register testUser 1 email");
-        chessClient.setIsLoggedIn(false);
+        serverFacade.eval("register testUser 1 email");
+        serverFacade.setIsLoggedIn(false);
 
-        Assertions.assertNotEquals("", chessClient.eval("logout"));
+        Assertions.assertNotEquals("", serverFacade.eval("logout"));
     }
 
     private void temporaryTestScript(String statement) throws DataAccessException {

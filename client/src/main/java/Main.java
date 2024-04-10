@@ -1,5 +1,4 @@
-import chess.*;
-import client.ServerFacade;
+import client.ChessClient;
 
 public class Main {
     public static void main(String[] args) {
@@ -9,6 +8,6 @@ public class Main {
             serverUrl = args[0];
         }
 
-        new ServerFacade(serverUrl).run();
+        new ChessClient(serverUrl).run();
     }
 }
