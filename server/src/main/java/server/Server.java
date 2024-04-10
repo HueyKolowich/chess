@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import server.websocket.*;
 import service.requestRecords.*;
 import service.resultRecords.*;
 import service.*;
@@ -10,6 +11,7 @@ import service.serviceExceptions.*;
 import spark.*;
 
 public class Server {
+    private final WebSocketHandler webSocketHandler = new WebSocketHandler();
     private final RegistrationService registrationService = new RegistrationService();
     private final ClearService clearService = new ClearService();
     private final LoginService loginService = new LoginService();
@@ -26,6 +28,8 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/connect", webSocketHandler);
 
         Spark.post("/user", this::register);
         Spark.post("/game", this::createGame);
