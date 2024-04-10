@@ -37,10 +37,10 @@ public class ServerFacadeTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(5051);
+        var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
 
-        chessClient = new ChessClient("http://localhost:5051");
+        chessClient = new ChessClient("http://localhost:" + port);
     }
 
     @BeforeEach
