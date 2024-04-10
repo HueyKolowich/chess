@@ -26,21 +26,21 @@ public class ChessClient {
     public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
 
-        try {
-            result = connectionManager("/game", "GET", 0, null, null, "0192837465");
-
-            ArrayList games = (ArrayList) result.get("games");
-            for (Object game : games) {
-                LinkedTreeMap gameLTM = (LinkedTreeMap) game;
-
-                Double tempGameIDObject = (Double) gameLTM.get("gameID");
-
-                clientGameNumberingSeries.put(currentPositionInGameNumberingSeries, tempGameIDObject.intValue());
-                currentPositionInGameNumberingSeries++;
-            }
-        } catch (IOException ioException) {
-            System.out.println("Could not assign numbering series to stored games!");
-        }
+//        try {
+////            result = connectionManager("/game", "GET", 0, null, null, "0192837465");
+//
+//            ArrayList games = (ArrayList) result.get("games");
+//            for (Object game : games) {
+//                LinkedTreeMap gameLTM = (LinkedTreeMap) game;
+//
+//                Double tempGameIDObject = (Double) gameLTM.get("gameID");
+//
+//                clientGameNumberingSeries.put(currentPositionInGameNumberingSeries, tempGameIDObject.intValue());
+//                currentPositionInGameNumberingSeries++;
+//            }
+//        } catch (IOException ioException) {
+//            System.out.println("Could not assign numbering series to stored games!");
+//        }
     }
 
     public String eval(String input) {
