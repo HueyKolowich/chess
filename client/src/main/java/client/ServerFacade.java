@@ -65,6 +65,9 @@ public class ServerFacade {
     }
 
     private void populateNumberingSeries() {
+        clientGameNumberingSeries.clear();
+        currentPositionInGameNumberingSeries = 1;
+
         try {
             result = connectionManager("/game", "GET", 0, null, null, "0192837465");
 
