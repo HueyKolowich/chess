@@ -38,16 +38,18 @@ public class ChessClient implements NotificationHandler {
 
             result = serverFacade.eval(line);
             out.print(result);
+
+            out.print(SET_BG_COLOR_BLACK);
+            out.print(SET_TEXT_COLOR_WHITE);
         }
     }
 
     @Override
     public void notify(ServerMessage serverMessage) {
-        System.out.println(SET_TEXT_COLOR_RED + "Need to add method to get message from serverMessage");
-    }
-
-    @Override
-    public void testNotify(String message) {
-        System.out.println(SET_TEXT_COLOR_RED + message);
+        switch (serverMessage.getServerMessageType()) {
+            case NOTIFICATION -> System.out.println(SET_TEXT_COLOR_RED + "THIS IS A NOTIFICATION SERVERMESSAGE");
+            case LOAD_GAME -> System.out.println(SET_TEXT_COLOR_RED + "THIS IS A LOAD_GAME SERVERMESSAGE");
+            case ERROR -> System.out.println(SET_TEXT_COLOR_RED + "THIS IS A ERROR SERVERMESSAGE");
+        }
     }
 }
