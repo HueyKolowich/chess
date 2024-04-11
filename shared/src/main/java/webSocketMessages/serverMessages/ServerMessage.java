@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
-    String game;
+    int game;
     String errorMessage;
     String message;
 
@@ -20,7 +20,7 @@ public class ServerMessage {
         NOTIFICATION
     }
 
-    public ServerMessage(ServerMessageType type, String game, String errorMessage, String message) {
+    public ServerMessage(ServerMessageType type, int game, String errorMessage, String message) {
         this.serverMessageType = type;
         this.game = game;
         this.errorMessage = errorMessage;
@@ -29,6 +29,18 @@ public class ServerMessage {
 
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
+    }
+
+    public int getGame() {
+        return game;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     @Override
