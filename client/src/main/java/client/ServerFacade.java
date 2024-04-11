@@ -30,23 +30,7 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
 
-        try {
-            result = connectionManager("/game", "GET", 0, null, null, "0192837465");
-
-            ArrayList games = (ArrayList) result.get("games");
-            if (games != null) {
-                for (Object game : games) {
-                    LinkedTreeMap gameLTM = (LinkedTreeMap) game;
-
-                    Double tempGameIDObject = (Double) gameLTM.get("gameID");
-
-                    clientGameNumberingSeries.put(currentPositionInGameNumberingSeries, tempGameIDObject.intValue());
-                    currentPositionInGameNumberingSeries++;
-                }
-            }
-        } catch (IOException ioException) {
-            System.out.println("Could not assign numbering series to stored games!");
-        }
+        populateNumberingSeries();
     }
 
     public String eval(String input) {
@@ -77,6 +61,26 @@ public class ServerFacade {
             System.out.println("There have been issues with communicating with the server! Please try again.\n");
             System.out.println(ioException.getMessage());
             return "";
+        }
+    }
+
+    private void populateNumberingSeries() {
+        try {
+            result = connectionManager("/game", "GET", 0, null, null, "0192837465");
+
+            ArrayList games = (ArrayList) result.get("games");
+            if (games != null) {
+                for (Object game : games) {
+                    LinkedTreeMap gameLTM = (LinkedTreeMap) game;
+
+                    Double tempGameIDObject = (Double) gameLTM.get("gameID");
+
+                    clientGameNumberingSeries.put(currentPositionInGameNumberingSeries, tempGameIDObject.intValue());
+                    currentPositionInGameNumberingSeries++;
+                }
+            }
+        } catch (IOException ioException) {
+            System.out.println("Could not assign numbering series to stored games!");
         }
     }
 
@@ -120,6 +124,8 @@ public class ServerFacade {
     }
 
     private String list() throws IOException {
+        populateNumberingSeries();
+
         result = connectionManager("/game", "GET", 0, null, null, this.sessionAuthToken);
 
         if (result.containsKey("message")) {
