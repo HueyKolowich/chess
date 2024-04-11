@@ -1,16 +1,19 @@
 package client;
 
+import client.websocket.NotificationHandler;
+import webSocketMessages.serverMessages.ServerMessage;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class ChessClient {
+public class ChessClient implements NotificationHandler {
     private final ServerFacade serverFacade;
 
     public ChessClient(String serverUrl) {
-        this.serverFacade = new ServerFacade(serverUrl);
+        this.serverFacade = new ServerFacade(serverUrl, this);
     }
 
     public void run() {
@@ -36,5 +39,15 @@ public class ChessClient {
             result = serverFacade.eval(line);
             out.print(result);
         }
+    }
+
+    @Override
+    public void notify(ServerMessage serverMessage) {
+        System.out.println(SET_TEXT_COLOR_RED + "Need to add method to get message from serverMessage");
+    }
+
+    @Override
+    public void testNotify(String message) {
+        System.out.println(SET_TEXT_COLOR_RED + message);
     }
 }

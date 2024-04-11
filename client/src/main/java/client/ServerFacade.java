@@ -1,5 +1,7 @@
 package client;
 
+import chess.ChessGame;
+import client.websocket.*;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import ui.ChessUI;
@@ -15,28 +17,32 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class ServerFacade {
-    public static boolean isLoggedIn = false;
+    private WebSocketFacade webSocketFacade;
+    private final NotificationHandler notificationHandler;
     private final String serverUrl;
+    public static boolean isLoggedIn = false;
     private String sessionAuthToken = null;
     private HashMap result;
     private final HashMap<Integer, Integer> clientGameNumberingSeries = new HashMap<>();
-
     private int currentPositionInGameNumberingSeries = 1;
 
-    public ServerFacade(String serverUrl) {
+    public ServerFacade(String serverUrl, NotificationHandler notificationHandler) {
         this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
 
         try {
             result = connectionManager("/game", "GET", 0, null, null, "0192837465");
 
             ArrayList games = (ArrayList) result.get("games");
-            for (Object game : games) {
-                LinkedTreeMap gameLTM = (LinkedTreeMap) game;
+            if (games != null) {
+                for (Object game : games) {
+                    LinkedTreeMap gameLTM = (LinkedTreeMap) game;
 
-                Double tempGameIDObject = (Double) gameLTM.get("gameID");
+                    Double tempGameIDObject = (Double) gameLTM.get("gameID");
 
-                clientGameNumberingSeries.put(currentPositionInGameNumberingSeries, tempGameIDObject.intValue());
-                currentPositionInGameNumberingSeries++;
+                    clientGameNumberingSeries.put(currentPositionInGameNumberingSeries, tempGameIDObject.intValue());
+                    currentPositionInGameNumberingSeries++;
+                }
             }
         } catch (IOException ioException) {
             System.out.println("Could not assign numbering series to stored games!");
@@ -68,8 +74,9 @@ public class ServerFacade {
                 };
             }
         } catch (IOException ioException) {
-            System.out.println("Could not establish connection with server! Please close client and try again.\n");
-            return null;
+            System.out.println("There have been issues with communicating with the server! Please try again.\n");
+            System.out.println(ioException.getMessage());
+            return "";
         }
     }
 
@@ -148,6 +155,14 @@ public class ServerFacade {
         if (result.containsKey("message")) {
             return (String) result.get("message") + '\n';
         } else {
+            webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
+            if (params.length > 1) {
+                webSocketFacade.joinPlayer(this.sessionAuthToken, Integer.parseInt(params[0]), ChessGame.TeamColor.valueOf(params[1].toUpperCase()));
+            } else {
+                webSocketFacade.joinPlayer(this.sessionAuthToken, Integer.parseInt(params[0]), null);
+            }
+
+
             ChessUI.main(null);
             return "";
         }

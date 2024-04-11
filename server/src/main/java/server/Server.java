@@ -21,7 +21,7 @@ public class Server {
     private final JoinService joinService = new JoinService();
 
     public static void main(String[] args) {
-        new Server().run(8080);
+        new Server().run(3030);
     }
 
     public int run(int desiredPort) {
