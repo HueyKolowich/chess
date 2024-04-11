@@ -64,7 +64,11 @@ public class DatabaseUserDao extends DatabaseDao implements UserDao {
     public boolean checkPassword(UserData user) throws DataAccessException {
         String hashedStoredPassword = getHashedStoredPassword(user);
 
-        return bCryptPasswordEncoder.matches(user.password(), hashedStoredPassword);
+        try {
+            return bCryptPasswordEncoder.matches(user.password(), hashedStoredPassword);
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return false;
+        }
     }
 
     /**
