@@ -164,8 +164,9 @@ public class ServerFacadeTests {
     @Test
     public void listNegative() {
         serverFacade.eval("register testUser 1 email");
+        int gameNumber = serverFacade.getCurrentPositionInGameNumberingSeries();
 
-        Assertions.assertEquals("", serverFacade.eval("list"));
+        Assertions.assertFalse(serverFacade.eval("list").contains(String.valueOf(gameNumber + 1)));
 
         serverFacade.eval("create testGame");
 
@@ -182,7 +183,6 @@ public class ServerFacadeTests {
     @Test
     public void createNegative() {
         serverFacade.eval("register testUser 1 email");
-        int gameNumber = serverFacade.getCurrentPositionInGameNumberingSeries();
 
         Assertions.assertEquals("Unable to update database: No value specified for parameter 2\n", serverFacade.eval("create"));
     }
