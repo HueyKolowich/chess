@@ -1,7 +1,6 @@
 package server.websocket;
 
 import chess.ChessGame;
-import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
@@ -16,7 +15,6 @@ import webSocketMessages.userCommands.UserGameCommandJoinPlayer;
 import webSocketMessages.userCommands.UserGameCommandMakeMove;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashSet;
 
 @WebSocket
@@ -79,27 +77,44 @@ public class WebSocketHandler {
     private void makeMove(UserGameCommandMakeMove userGameCommandMakeMove, Session rootSession) throws IOException {
         HashSet<Session> sessions = ConnectionManager.connections.get(userGameCommandMakeMove.getGameID());
 
+        ChessGame.TeamColor rootPlayerColor;
+
+        try {
+            String rootUsername = databaseAuthDao.getUsernameByAuth(userGameCommandMakeMove.getAuthString());
+
+            if (rootUsername.equals(databaseGameDao.checkPlayerSpotTaken(userGameCommandMakeMove.getGameID(), "WHITE"))) {
+                rootPlayerColor = ChessGame.TeamColor.WHITE;
+            } else if (rootUsername.equals(databaseGameDao.checkPlayerSpotTaken(userGameCommandMakeMove.getGameID(), "BLACK"))) {
+                rootPlayerColor = ChessGame.TeamColor.BLACK;
+            } else {
+                rootPlayerColor = null;
+            }
+        } catch (DataAccessException e) {
+            rootPlayerColor = null;
+        }
+
         try {
             ChessGame game = new Gson().fromJson(databaseGameDao.getGame(userGameCommandMakeMove.getGameID()), ChessGame.class);
-            game.makeMove(userGameCommandMakeMove.getMove());
 
-            databaseGameDao.updateGame(userGameCommandMakeMove.getGameID(), new Gson().toJson(game));
+            if (game.getTeamTurn().equals(rootPlayerColor)) {
+                game.makeMove(userGameCommandMakeMove.getMove());
 
-            for (Session clientSession : sessions) {
-//                String chessGameString = new Gson().toJson(game);
-//                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, chessGameString, null, null);
-//                String serverMessageString = new Gson().toJson(serverMessage);
+                databaseGameDao.updateGame(userGameCommandMakeMove.getGameID(), new Gson().toJson(game));
 
-                clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null)));
+                for (Session clientSession : sessions) {
+                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null)));
 
-                if (!clientSession.equals(rootSession)) {
-                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "THIS IS A NOTIFICATION THAT A CHESS MOVE WAS MADE")));
+                    if (!clientSession.equals(rootSession)) {
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "THIS IS A NOTIFICATION THAT A CHESS MOVE WAS MADE")));
+                    }
                 }
+            } else {
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error not authorized to make move!", null)));
             }
         } catch (DataAccessException dataAccessException) {
-            throw new RuntimeException(dataAccessException); //TODO Send back an error server message here... no game was found for the gameID
+            throw new IOException(dataAccessException.getMessage());
         } catch (InvalidMoveException invalidMoveException) {
-             //TODO NOT A LEGAL MOVE
+             rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error invalid move!", null)));
         }
     }
 }
