@@ -48,11 +48,11 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        if (this.promotionPiece == null) {
-            return "{" + this.endPosition.getRow() + "," + this.endPosition.getColumn() + "}";
-        } else {
-            return "{" + this.endPosition.getRow() + "," + this.endPosition.getColumn() + "," + this.promotionPiece.toString() + "}";
-        }
+        return "ChessMove{" +
+                "startPosition=" + startPosition +
+                ", endPosition=" + endPosition +
+                ", promotionPiece=" + promotionPiece +
+                '}';
     }
 
     @Override

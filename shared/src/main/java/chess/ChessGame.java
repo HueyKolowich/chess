@@ -16,6 +16,7 @@ public class ChessGame {
     private ChessGame.TeamColor currentTurn;
 
     public ChessGame() {
+        this.board = new ChessBoard();
         this.currentTurn = TeamColor.WHITE;
     }
 
@@ -303,5 +304,14 @@ public class ChessGame {
         else { oppositeTeamColor = TeamColor.WHITE; }
 
         return oppositeTeamColor;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "board=" + board +
+                ", tempBoard=" + tempBoard +
+                ", currentTurn=" + currentTurn +
+                '}';
     }
 }

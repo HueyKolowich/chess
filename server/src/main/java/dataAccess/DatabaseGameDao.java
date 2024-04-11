@@ -1,5 +1,6 @@
 package dataAccess;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import service.resultRecords.ListResultBody;
@@ -41,13 +42,25 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
     @Override
     public int createGame(int gameID, String gameName) throws DataAccessException {
         String statement = "INSERT INTO game (gameID, gameName, game) VALUES (?, ?, ?)";
-        String game = new Gson().toJson(new ChessGame());
+
+        ChessGame chessGame = new ChessGame();
+        ChessBoard chessBoard = chessGame.getBoard();
+        chessBoard.resetBoard();
+        chessGame.setBoard(chessBoard);
+
+        String game = new Gson().toJson(chessGame);
 
         executeUpdate(statement, gameID, gameName, game);
 
         if (selectItem("SELECT gameID FROM game WHERE gameID=?", (Integer) gameID)) {
             return gameID;
         } else { throw new DataAccessException("Game was not created!"); }
+    }
+
+    public void updateGame(int gameID, String game) throws DataAccessException {
+        String statement = "UPDATE game SET game=? WHERE gameID=?";
+
+        executeUpdate(statement, game, gameID);
     }
 
     /**
@@ -123,14 +136,6 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
         }
     }
 
-    public boolean checkPlayerSpotReserved(int gameID, String playerColor) throws DataAccessException {
-        if (playerColor.equalsIgnoreCase("WHITE")) {
-            return selectItem("SELECT whiteUsername FROM game WHERE gameID=?", gameID);
-        } else {
-            return selectItem("SELECT blackUsername FROM game WHERE gameID=?", gameID);
-        }
-    }
-
     /**
      * Adds a player's username to the game
      *
@@ -183,6 +188,24 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
             } catch (SQLException sqlException) {
                 throw new DataAccessException(String.format("Unable to get DB connection: %s", sqlException.getMessage()));
             }
+        }
+    }
+
+    public String getGame(int gameID) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT game FROM game WHERE gameID=?")) {
+                preparedStatement.setInt(1, gameID);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getString("game");
+                    }
+
+                    return null;
+                }
+            }
+        } catch (SQLException sqlException) {
+            throw new DataAccessException(String.format("Unable to SELECT: %s", sqlException.getMessage()));
         }
     }
 

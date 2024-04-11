@@ -13,23 +13,16 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
 
-    private final BishopMoveCalculator bishopMoveCalculator;
-    private final QueenMoveCalculator queenMoveCalculator;
-    private final RookMoveCalculator rookMoveCalculator;
-    private final KnightMoveCalculator knightMoveCalculator;
-    private final KingMoveCalculator kingMoveCalculator;
-    private final PawnMoveCalculator pawnMoveCalculator;
+    private final BishopMoveCalculator bishopMoveCalculator = new BishopMoveCalculator();
+    private final QueenMoveCalculator queenMoveCalculator = new QueenMoveCalculator();
+    private final RookMoveCalculator rookMoveCalculator = new RookMoveCalculator();
+    private final KnightMoveCalculator knightMoveCalculator = new KnightMoveCalculator();
+    private final KingMoveCalculator kingMoveCalculator = new KingMoveCalculator();
+    private final PawnMoveCalculator pawnMoveCalculator = new PawnMoveCalculator();
 
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.type = type;
         this.pieceColor = pieceColor;
-
-        bishopMoveCalculator = new BishopMoveCalculator();
-        queenMoveCalculator = new QueenMoveCalculator();
-        rookMoveCalculator = new RookMoveCalculator();
-        knightMoveCalculator = new KnightMoveCalculator();
-        kingMoveCalculator = new KingMoveCalculator();
-        pawnMoveCalculator = new PawnMoveCalculator();
     }
 
     /**
