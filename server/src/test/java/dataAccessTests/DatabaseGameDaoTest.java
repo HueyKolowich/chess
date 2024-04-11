@@ -64,9 +64,6 @@ class DatabaseGameDaoTest {
         Assertions.assertDoesNotThrow(() -> databaseGameDao.addPlayer("WHITE", "testUser", 9999));
         Assertions.assertDoesNotThrow(() -> databaseGameDao.addPlayer("BLACK", "testUser", 9999));
 
-        Assertions.assertThrows(DataAccessException.class, () -> databaseGameDao.addPlayer("WHITE", "testUser", 9999));
-        Assertions.assertThrows(DataAccessException.class, () -> databaseGameDao.addPlayer("BLACK", "testUser", 9999));
-
         temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
     }
 

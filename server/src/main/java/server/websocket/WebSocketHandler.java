@@ -3,6 +3,7 @@ package server.websocket;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseAuthDao;
+import dataAccess.DatabaseGameDao;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -17,10 +18,12 @@ import java.util.HashSet;
 public class WebSocketHandler {
     ConnectionManager connectionManager = new ConnectionManager();
     DatabaseAuthDao databaseAuthDao;
+    DatabaseGameDao databaseGameDao;
 
     {
         try {
             databaseAuthDao = new DatabaseAuthDao();
+            databaseGameDao = new DatabaseGameDao();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -40,16 +43,22 @@ public class WebSocketHandler {
         HashSet<Session> sessions = ConnectionManager.connections.get(userGameCommandJoinPlayer.getGameID());
 
         for (Session clientSession : sessions) {
-            if (clientSession.equals(rootSession)) {
-                clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, userGameCommandJoinPlayer.getGameID(), null, null)));
-            } else {
-                try {
+            try {
+                if (clientSession.equals(rootSession)) {
+                    String usernameInSpot = databaseGameDao.checkPlayerSpotTaken(userGameCommandJoinPlayer.getGameID(), userGameCommandJoinPlayer.getPlayerColor().toString());
+
+                    if ((usernameInSpot == null) || (usernameInSpot.equals(databaseAuthDao.getUsernameByAuth(userGameCommandJoinPlayer.getAuthString())))) {
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, userGameCommandJoinPlayer.getGameID(), null, null)));
+                    } else {
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (spot taken)", null)));
+                    }
+                } else {
                     String playerColor = userGameCommandJoinPlayer.getPlayerColor() != null ? userGameCommandJoinPlayer.getPlayerColor().toString() : "observer";
                     String message = databaseAuthDao.getUsernameByAuth(userGameCommandJoinPlayer.getAuthString()) + " has joined the game as " + playerColor;
                     clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, -1, null, message)));
-                } catch (DataAccessException dataAccessException) {
-                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, -1, "Error with joining game!", null)));
                 }
+            } catch (DataAccessException dataAccessException) {
+                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, -1, "Error with joining game!", null)));
             }
         }
     }

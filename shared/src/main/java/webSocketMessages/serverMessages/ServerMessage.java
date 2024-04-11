@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
-    int game;
+    Integer game;
     String errorMessage;
     String message;
 
@@ -20,7 +20,7 @@ public class ServerMessage {
         NOTIFICATION
     }
 
-    public ServerMessage(ServerMessageType type, int game, String errorMessage, String message) {
+    public ServerMessage(ServerMessageType type, Integer game, String errorMessage, String message) {
         this.serverMessageType = type;
         this.game = game;
         this.errorMessage = errorMessage;

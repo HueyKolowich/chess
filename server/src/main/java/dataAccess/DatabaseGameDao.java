@@ -95,6 +95,42 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
         return selectItem("SELECT gameID FROM game WHERE gameID=?", gameID);
     }
 
+    public String checkPlayerSpotTaken(int gameID, String playerColor) throws DataAccessException {
+        String statement;
+        String columnLabel;
+        if (playerColor.equalsIgnoreCase("WHITE")) {
+            statement = "SELECT whiteUsername FROM game WHERE gameID=?";
+            columnLabel = "whiteUsername";
+        } else {
+            statement = "SELECT blackUsername FROM game WHERE gameID=?";
+            columnLabel = "blackUsername";
+        }
+
+        try (Connection connection = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setInt(1, gameID);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getString(columnLabel);
+                    }
+
+                    return null;
+                }
+            }
+        } catch (SQLException sqlException) {
+            throw new DataAccessException(String.format("Unable to SELECT: %s", sqlException.getMessage()));
+        }
+    }
+
+    public boolean checkPlayerSpotReserved(int gameID, String playerColor) throws DataAccessException {
+        if (playerColor.equalsIgnoreCase("WHITE")) {
+            return selectItem("SELECT whiteUsername FROM game WHERE gameID=?", gameID);
+        } else {
+            return selectItem("SELECT blackUsername FROM game WHERE gameID=?", gameID);
+        }
+    }
+
     /**
      * Adds a player's username to the game
      *
@@ -116,7 +152,7 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
 
                     ResultSet resultSet = preparedStatement.getResultSet();
                     if (resultSet.next()) {
-                        if (resultSet.getString("whiteUsername") != null) {
+                        if ((resultSet.getString("whiteUsername") != null) && (!resultSet.getString("whiteUsername").equals(username))) {
                             throw new DataAccessException("playerColor already taken");
                         }
 
@@ -137,7 +173,7 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
 
                     ResultSet resultSet = preparedStatement.getResultSet();
                     if (resultSet.next()) {
-                        if (resultSet.getString("blackUsername") != null) {
+                        if ((resultSet.getString("blackUsername") != null) && (!resultSet.getString("whiteUsername").equals(username))) {
                             throw new DataAccessException("playerColor already taken");
                         }
 
