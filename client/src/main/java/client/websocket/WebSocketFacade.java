@@ -1,7 +1,6 @@
 package client.websocket;
 
 import chess.ChessGame;
-import chess.ChessPiece;
 import com.google.gson.Gson;
 import webSocketMessages.userCommands.UserGameCommand;
 import webSocketMessages.userCommands.UserGameCommandJoinPlayer;
@@ -43,7 +42,5 @@ public class WebSocketFacade extends Endpoint {
     }
 
     @Override
-    public void onOpen(Session session, EndpointConfig endpointConfig) {
-        System.out.println("WebSocket opened!");
-    }
+    public void onOpen(Session session, EndpointConfig endpointConfig) {}
 }
