@@ -34,7 +34,7 @@ public class WebSocketHandler {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
 
         switch (userGameCommand.getCommandType()) {
-            case JOIN_PLAYER -> joinPlayer(new Gson().fromJson(message, UserGameCommandJoinPlayer.class), session);
+            case JOIN_PLAYER, JOIN_OBSERVER -> joinPlayer(new Gson().fromJson(message, UserGameCommandJoinPlayer.class), session);
         }
     }
 
@@ -44,7 +44,7 @@ public class WebSocketHandler {
 
         for (Session clientSession : sessions) {
             try {
-                if (clientSession.equals(rootSession)) {
+                if ((clientSession.equals(rootSession)) && (userGameCommandJoinPlayer.getPlayerColor() != null)) {
                     String usernameInSpot = databaseGameDao.checkPlayerSpotTaken(userGameCommandJoinPlayer.getGameID(), userGameCommandJoinPlayer.getPlayerColor().toString());
 
                     if ((usernameInSpot == null) || (!usernameInSpot.equals(databaseAuthDao.getUsernameByAuth(userGameCommandJoinPlayer.getAuthString())))) {
@@ -55,7 +55,14 @@ public class WebSocketHandler {
                 } else {
                     String playerColor = userGameCommandJoinPlayer.getPlayerColor() != null ? userGameCommandJoinPlayer.getPlayerColor().toString() : "observer";
                     String message = databaseAuthDao.getUsernameByAuth(userGameCommandJoinPlayer.getAuthString()) + " has joined the game as " + playerColor;
-                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, -1, null, message)));
+
+                    if (!clientSession.equals(rootSession)) {
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message)));
+                    } else if (!databaseGameDao.findGame(userGameCommandJoinPlayer.getGameID())) {
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (no game)", null)));
+                    } else {
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, userGameCommandJoinPlayer.getGameID(), null, null)));
+                    }
                 }
             } catch (DataAccessException dataAccessException) {
                     clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game!", null)));

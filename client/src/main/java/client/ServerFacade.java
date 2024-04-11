@@ -171,7 +171,6 @@ public class ServerFacade {
                 webSocketFacade.joinPlayer(this.sessionAuthToken, Integer.parseInt(params[0]), null);
             }
 
-
             ChessUI.main(null);
             return "";
         }
@@ -187,6 +186,9 @@ public class ServerFacade {
         if (result.containsKey("message")) {
             return (String) result.get("message") + '\n';
         } else {
+            webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
+            webSocketFacade.joinPlayer(this.sessionAuthToken, Integer.parseInt(params[0]), null);
+
             ChessUI.main(null);
             return "";
         }
