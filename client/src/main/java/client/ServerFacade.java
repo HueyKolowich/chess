@@ -21,6 +21,7 @@ public class ServerFacade {
     private final NotificationHandler notificationHandler;
     private final String serverUrl;
     public static boolean isLoggedIn = false;
+    public static boolean isInGame = false;
     private String sessionAuthToken = null;
     private HashMap result;
     private final HashMap<Integer, Integer> clientGameNumberingSeries = new HashMap<>();
@@ -39,7 +40,12 @@ public class ServerFacade {
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
         try {
-            if (isLoggedIn) {
+            if (isLoggedIn && isInGame) {
+                return switch (cmd) {
+                    case "leave" -> leave();
+                    default -> inGameHelp();
+                };
+            } else if (isLoggedIn) {
                 return switch (cmd) {
                     case "logout" -> logout();
                     case "create" -> create(params);
@@ -171,7 +177,6 @@ public class ServerFacade {
                 webSocketFacade.joinPlayer(this.sessionAuthToken, Integer.parseInt(params[0]), null);
             }
 
-            ChessUI.main(null);
             return "";
         }
     }
@@ -189,9 +194,15 @@ public class ServerFacade {
             webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
             webSocketFacade.joinPlayer(this.sessionAuthToken, Integer.parseInt(params[0]), null);
 
-            ChessUI.main(null);
             return "";
         }
+    }
+
+    private String leave() {
+        //TODO Needs to make a call to the ws/connection manager to remove its session from the set
+        setisInGame(false);
+
+        return "";
     }
 
     private HashMap connectionManager(String urlEndpoint, String requestMethod,
@@ -272,8 +283,23 @@ public class ServerFacade {
                 """;
     }
 
+    private String inGameHelp() {
+        return """
+                - redraw - the chessboard
+                - leave - the current game
+                - move <INITIAL POSITION> <END POSITION> - a chess piece
+                - resign - from the current game
+                - highlight <CHESS PIECE POSITION> - legal moves
+                - help - with possible commands
+                """;
+    }
+
     public void setIsLoggedIn(boolean isLoggedIn) {
         ServerFacade.isLoggedIn = isLoggedIn;
+    }
+
+    public void setisInGame(boolean isInGame) {
+        ServerFacade.isInGame = isInGame;
     }
 
     public int getCurrentPositionInGameNumberingSeries() {

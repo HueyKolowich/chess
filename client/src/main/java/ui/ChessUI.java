@@ -19,6 +19,8 @@ public class ChessUI {
 
         out.print(ERASE_SCREEN);
 
+        out.println();
+
         drawHeaders(out, horizontalHeadersOrientation1);
         drawChessBoard(out, verticalHeadersOrientation1, 1);
         drawHeaders(out, horizontalHeadersOrientation1);
@@ -31,6 +33,8 @@ public class ChessUI {
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
+
+        out.print("[COMMAND] >>> ");
     }
 
     private static void drawHeaders(PrintStream out, String[] headers) {

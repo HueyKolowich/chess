@@ -1,6 +1,7 @@
 package client;
 
 import client.websocket.NotificationHandler;
+import ui.ChessUI;
 import webSocketMessages.serverMessages.ServerMessage;
 
 import java.io.PrintStream;
@@ -28,7 +29,9 @@ public class ChessClient implements NotificationHandler {
         String line;
 
         while (!result.equals("quit")) {
-            if (ServerFacade.isLoggedIn) {
+            if (ServerFacade.isInGame && ServerFacade.isLoggedIn) {
+                out.print("[COMMAND] >>> ");
+            } else if (ServerFacade.isLoggedIn) {
                 out.print("[LOGGED_IN] >>> ");
             } else {
                 out.print("[LOGGED_OUT] >>> ");
@@ -47,9 +50,16 @@ public class ChessClient implements NotificationHandler {
     @Override
     public void notify(ServerMessage serverMessage) {
         switch (serverMessage.getServerMessageType()) {
-            case NOTIFICATION -> System.out.println(SET_TEXT_COLOR_RED + serverMessage.getMessage());
-            case LOAD_GAME -> System.out.println(SET_TEXT_COLOR_RED + serverMessage.getGame());
-            case ERROR -> System.out.println(SET_TEXT_COLOR_RED + serverMessage.getErrorMessage());
+            case NOTIFICATION:
+                System.out.println(SET_TEXT_COLOR_RED + serverMessage.getMessage());
+                break;
+            case LOAD_GAME:
+                ChessUI.main(null);
+                serverFacade.setisInGame(true);
+                break;
+            case ERROR:
+                System.out.println(SET_TEXT_COLOR_RED + serverMessage.getErrorMessage());
+                break;
         }
     }
 }
