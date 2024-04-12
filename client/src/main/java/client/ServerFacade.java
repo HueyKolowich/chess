@@ -1,6 +1,8 @@
 package client;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import client.websocket.*;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -212,7 +214,7 @@ public class ServerFacade {
         return "";
     }
 
-    private String move(String[] params) throws IOException {
+    private String move(String[] params) throws IOException { //TODO Need to add functionality for promoting
         if (currentGameID == -1) {
             return "The game was not correctly joined... please try again\n";
         }
@@ -229,7 +231,9 @@ public class ServerFacade {
             return "Incorrect formatting of moves... please try again\n";
         }
 
-//        webSocketFacade.makeMove(this.sessionAuthToken, currentGameID);
+        ChessPosition startPosition = new ChessPosition(Integer.parseInt(String.valueOf(params[0].charAt(1))), chessCharToInt.get(params[0].charAt(0)));
+        ChessPosition endPosition = new ChessPosition(Integer.parseInt(String.valueOf(params[1].charAt(1))), chessCharToInt.get(params[1].charAt(0)));
+        webSocketFacade.makeMove(this.sessionAuthToken, currentGameID, new ChessMove(startPosition, endPosition, null));
 
         return "";
     }
@@ -325,6 +329,17 @@ public class ServerFacade {
 
     private final char[] validMoveChars = new char[] {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
     private final char[] validMoveInts = new char[] {'1', '2', '3', '4', '5', '6', '7', '8'};
+
+    private final HashMap<Character, Integer> chessCharToInt = new HashMap<Character, Integer>() {{
+        put('a', 1);
+        put('b', 2);
+        put('c', 3);
+        put('d', 4);
+        put('e', 5);
+        put('f', 6);
+        put('g', 7);
+        put('h', 8);
+    }};
 
     public void setIsLoggedIn(boolean isLoggedIn) {
         ServerFacade.isLoggedIn = isLoggedIn;

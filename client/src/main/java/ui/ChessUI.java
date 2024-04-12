@@ -15,10 +15,10 @@ import static ui.EscapeSequences.*;
 public class ChessUI {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_CHARS = 3;
-    private static final String[] horizontalHeadersOrientation1 = {" ", "h", "g", "f", "e", "d", "c", "b", "a", " "};
-    private static final String[] horizontalHeadersOrientation2 = {" ", "a", "b", "c", "d", "e", "f", "g", "h", " "};
-    private static final String[] verticalHeadersOrientation1 = {"1", "2", "3", "4", "5", "6", "7", "8"};
-    private static final String[] verticalHeadersOrientation2 = {"8", "7", "6", "5", "4", "3", "2", "1"};
+    private static final String[] horizontalHeadersOrientation2 = {" ", "h", "g", "f", "e", "d", "c", "b", "a", " "};
+    private static final String[] horizontalHeadersOrientation1 = {" ", "a", "b", "c", "d", "e", "f", "g", "h", " "};
+    private static final String[] verticalHeadersOrientation2 = {"1", "2", "3", "4", "5", "6", "7", "8"};
+    private static final String[] verticalHeadersOrientation1 = {"8", "7", "6", "5", "4", "3", "2", "1"};
     private static final String EMPTY = " ";
 
     public static void draw(ChessBoard board, ChessGame.TeamColor playerColor) {
@@ -35,8 +35,6 @@ public class ChessUI {
             horizontalOrientation = horizontalHeadersOrientation2;
             verticalOrientation = verticalHeadersOrientation2;
             orientationNumber = 2;
-
-            //TODO Reverse Board
         }
 
         out.print(ERASE_SCREEN);
@@ -184,23 +182,4 @@ public class ChessUI {
         put(ChessPiece.PieceType.ROOK, "R");
         put(ChessPiece.PieceType.PAWN, "P");
     }};
-
-    private ChessPiece[][] boardReverser(ChessBoard board) {
-        ChessPiece[][] reversedBoard = board.getBoard().clone();
-        for (int i = 0; i < reversedBoard.length / 2; i++) {
-            ChessPiece[] temp = reversedBoard[i];
-            reversedBoard[i] = reversedBoard[reversedBoard.length - 1 - i];
-            reversedBoard[reversedBoard.length - 1 - i] = temp;
-
-            for (ChessPiece[] row : new ChessPiece[][]{ reversedBoard[i], reversedBoard[reversedBoard.length - 1 - i] })  {
-                for (int j = 0; j < row.length / 2; j++) {
-                    ChessPiece tempPiece = row[i];
-                    row[i] = row[row.length - 1 - i];
-                    row[row.length - 1 - i] = tempPiece;
-                }
-            }
-        }
-
-        return reversedBoard;
-    }
 }
