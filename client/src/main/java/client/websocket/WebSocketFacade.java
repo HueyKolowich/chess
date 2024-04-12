@@ -1,10 +1,12 @@
 package client.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 import webSocketMessages.userCommands.UserGameCommandJoinPlayer;
+import webSocketMessages.userCommands.UserGameCommandMakeMove;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -39,6 +41,11 @@ public class WebSocketFacade extends Endpoint {
 
     public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor playerColor) throws IOException {
         UserGameCommand userGameCommand = new UserGameCommandJoinPlayer(authToken, gameID, playerColor);
+        this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+    }
+
+    public void makeMove(String authToken, int gameID, ChessMove move) throws IOException {
+        UserGameCommand userGameCommand = new UserGameCommandMakeMove(authToken, gameID, move);
         this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 

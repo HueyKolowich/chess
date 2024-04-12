@@ -1,6 +1,8 @@
 package client;
 
+import chess.ChessGame;
 import client.websocket.NotificationHandler;
+import com.google.gson.Gson;
 import ui.ChessUI;
 import webSocketMessages.serverMessages.ServerMessage;
 
@@ -54,7 +56,8 @@ public class ChessClient implements NotificationHandler {
                 System.out.println(SET_TEXT_COLOR_RED + serverMessage.getMessage());
                 break;
             case LOAD_GAME:
-                ChessUI.main(null);
+                ChessGame game = new Gson().fromJson(serverMessage.getGame(), ChessGame.class);
+                ChessUI.draw(game.getBoard(), serverMessage.getPlayerColor());
                 serverFacade.setisInGame(true);
                 break;
             case ERROR:

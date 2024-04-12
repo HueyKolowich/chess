@@ -43,39 +43,41 @@ public class WebSocketHandler {
     }
 
     private void joinPlayer(UserGameCommandJoinPlayer userGameCommandJoinPlayer, Session rootSession) throws IOException {
-        connectionManager.addClientSession(userGameCommandJoinPlayer.getGameID(), rootSession);
-        HashSet<Session> sessions = ConnectionManager.connections.get(userGameCommandJoinPlayer.getGameID());
+        connectionManager.addClientSession(userGameCommandJoinPlayer.getGameID(), rootSession, userGameCommandJoinPlayer.getPlayerColor());
+        HashSet<SessionGrouping> sessions = ConnectionManager.connections.get(userGameCommandJoinPlayer.getGameID());
 
-        for (Session clientSession : sessions) {
+        for (SessionGrouping clientSessionGroup : sessions) {
+            Session clientSession = clientSessionGroup.session();
+
             try {
                 if ((clientSession.equals(rootSession)) && (userGameCommandJoinPlayer.getPlayerColor() != null)) {
                     String usernameInSpot = databaseGameDao.checkPlayerSpotTaken(userGameCommandJoinPlayer.getGameID(), userGameCommandJoinPlayer.getPlayerColor().toString());
 
                     if ((usernameInSpot == null) || (!usernameInSpot.equals(databaseAuthDao.getUsernameByAuth(userGameCommandJoinPlayer.getAuthString())))) {
-                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (spot taken)", null)));
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (spot taken)", null, null)));
                     } else {
-                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, databaseGameDao.getGame(userGameCommandJoinPlayer.getGameID()), null, null)));
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, databaseGameDao.getGame(userGameCommandJoinPlayer.getGameID()), null, null, clientSessionGroup.playerColor())));
                     }
                 } else {
                     String playerColor = userGameCommandJoinPlayer.getPlayerColor() != null ? userGameCommandJoinPlayer.getPlayerColor().toString() : "observer";
                     String message = databaseAuthDao.getUsernameByAuth(userGameCommandJoinPlayer.getAuthString()) + " has joined the game as " + playerColor;
 
                     if (!clientSession.equals(rootSession)) {
-                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message)));
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null)));
                     } else if (!databaseGameDao.findGame(userGameCommandJoinPlayer.getGameID())) {
-                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (no game)", null)));
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (no game)", null, null)));
                     } else {
-                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, databaseGameDao.getGame(userGameCommandJoinPlayer.getGameID()), null, null)));
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, databaseGameDao.getGame(userGameCommandJoinPlayer.getGameID()), null, null, clientSessionGroup.playerColor())));
                     }
                 }
             } catch (DataAccessException dataAccessException) {
-                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game!", null)));
+                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game!", null, null)));
             }
         }
     }
 
     private void makeMove(UserGameCommandMakeMove userGameCommandMakeMove, Session rootSession) throws IOException {
-        HashSet<Session> sessions = ConnectionManager.connections.get(userGameCommandMakeMove.getGameID());
+        HashSet<SessionGrouping> sessions = ConnectionManager.connections.get(userGameCommandMakeMove.getGameID());
 
         ChessGame.TeamColor rootPlayerColor;
 
@@ -101,20 +103,22 @@ public class WebSocketHandler {
 
                 databaseGameDao.updateGame(userGameCommandMakeMove.getGameID(), new Gson().toJson(game));
 
-                for (Session clientSession : sessions) {
-                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null)));
+                for (SessionGrouping clientSessionGroup : sessions) {
+                    Session clientSession = clientSessionGroup.session();
+
+                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null, clientSessionGroup.playerColor())));
 
                     if (!clientSession.equals(rootSession)) {
-                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "THIS IS A NOTIFICATION THAT A CHESS MOVE WAS MADE")));
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "THIS IS A NOTIFICATION THAT A CHESS MOVE WAS MADE", null)));
                     }
                 }
             } else {
-                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error not authorized to make move!", null)));
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error not authorized to make move!", null, null)));
             }
         } catch (DataAccessException dataAccessException) {
             throw new IOException(dataAccessException.getMessage());
         } catch (InvalidMoveException invalidMoveException) {
-             rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error invalid move!", null)));
+             rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error invalid move!", null, null)));
         }
     }
 }

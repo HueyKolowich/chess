@@ -1,5 +1,9 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
@@ -14,22 +18,29 @@ public class ChessUI {
     private static final String[] verticalHeadersOrientation2 = {"8", "7", "6", "5", "4", "3", "2", "1"};
     private static final String EMPTY = " ";
 
-    public static void main(String[] args) {
+    public static void draw(ChessBoard board, ChessGame.TeamColor playerColor) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+
+        String[] horizontalOrientation;
+        String[] verticalOrientation;
+        int orientationNumber;
+        if (playerColor == null || playerColor.equals(ChessGame.TeamColor.WHITE)) {
+            horizontalOrientation = horizontalHeadersOrientation1;
+            verticalOrientation = verticalHeadersOrientation1;
+            orientationNumber = 1;
+        } else {
+            horizontalOrientation = horizontalHeadersOrientation2;
+            verticalOrientation = verticalHeadersOrientation2;
+            orientationNumber = 2;
+        }
 
         out.print(ERASE_SCREEN);
 
         out.println();
 
-        drawHeaders(out, horizontalHeadersOrientation1);
-        drawChessBoard(out, verticalHeadersOrientation1, 1);
-        drawHeaders(out, horizontalHeadersOrientation1);
-
-        out.println();
-
-        drawHeaders(out, horizontalHeadersOrientation2);
-        drawChessBoard(out, verticalHeadersOrientation2, 2);
-        drawHeaders(out, horizontalHeadersOrientation2);
+        drawHeaders(out, horizontalOrientation);
+        drawChessBoard(out, verticalOrientation, orientationNumber);
+        drawHeaders(out, horizontalOrientation);
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);

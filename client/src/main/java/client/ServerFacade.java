@@ -22,6 +22,7 @@ public class ServerFacade {
     private final String serverUrl;
     public static boolean isLoggedIn = false;
     public static boolean isInGame = false;
+    private int currentGameID = -1;
     private String sessionAuthToken = null;
     private HashMap result;
     private final HashMap<Integer, Integer> clientGameNumberingSeries = new HashMap<>();
@@ -43,6 +44,7 @@ public class ServerFacade {
             if (isLoggedIn && isInGame) {
                 return switch (cmd) {
                     case "leave" -> leave();
+                    case "move" -> move(params);
                     default -> inGameHelp();
                 };
             } else if (isLoggedIn) {
@@ -170,11 +172,13 @@ public class ServerFacade {
         if (result.containsKey("message")) {
             return (String) result.get("message") + '\n';
         } else {
+            currentGameID = Integer.parseInt(params[0]);
+
             webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
             if (params.length > 1) {
-                webSocketFacade.joinPlayer(this.sessionAuthToken, Integer.parseInt(params[0]), ChessGame.TeamColor.valueOf(params[1].toUpperCase()));
+                webSocketFacade.joinPlayer(this.sessionAuthToken, currentGameID, ChessGame.TeamColor.valueOf(params[1].toUpperCase()));
             } else {
-                webSocketFacade.joinPlayer(this.sessionAuthToken, Integer.parseInt(params[0]), null);
+                webSocketFacade.joinPlayer(this.sessionAuthToken, currentGameID, null);
             }
 
             return "";
@@ -191,8 +195,10 @@ public class ServerFacade {
         if (result.containsKey("message")) {
             return (String) result.get("message") + '\n';
         } else {
+            currentGameID = Integer.parseInt(params[0]);
+
             webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
-            webSocketFacade.joinPlayer(this.sessionAuthToken, Integer.parseInt(params[0]), null);
+            webSocketFacade.joinPlayer(this.sessionAuthToken, currentGameID, null);
 
             return "";
         }
@@ -200,7 +206,30 @@ public class ServerFacade {
 
     private String leave() {
         //TODO Needs to make a call to the ws/connection manager to remove its session from the set
+        //TODO Will also probably need to update currentGameID to -1;
         setisInGame(false);
+
+        return "";
+    }
+
+    private String move(String[] params) throws IOException {
+        if (currentGameID == -1) {
+            return "The game was not correctly joined... please try again\n";
+        }
+
+        if (params.length != 2) {
+            return "Incorrect amount of move arguments... please see the help command\n";
+        }
+
+        if ((new String(validMoveChars).indexOf(params[0].charAt(0)) == -1) || (new String(validMoveChars).indexOf(params[1].charAt(0)) == -1)) {
+            return "Incorrect formatting of moves... please try again\n";
+        }
+
+        if ((new String(validMoveInts).indexOf(params[0].charAt(1)) == -1) || (new String(validMoveInts).indexOf(params[1].charAt(1)) == -1)) {
+            return "Incorrect formatting of moves... please try again\n";
+        }
+
+//        webSocketFacade.makeMove(this.sessionAuthToken, currentGameID);
 
         return "";
     }
@@ -293,6 +322,9 @@ public class ServerFacade {
                 - help - with possible commands
                 """;
     }
+
+    private final char[] validMoveChars = new char[] {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+    private final char[] validMoveInts = new char[] {'1', '2', '3', '4', '5', '6', '7', '8'};
 
     public void setIsLoggedIn(boolean isLoggedIn) {
         ServerFacade.isLoggedIn = isLoggedIn;
