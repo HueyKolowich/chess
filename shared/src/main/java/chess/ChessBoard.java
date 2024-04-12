@@ -17,7 +17,7 @@ public class ChessBoard {
 
     private ChessPiece[][] squares = new ChessPiece[8][8];
 
-    private final HashMap<Integer, Integer> rowNumberingSeriesConversion = new HashMap<Integer, Integer>() {{
+    public static final HashMap<Integer, Integer> rowNumberingSeriesConversion = new HashMap<Integer, Integer>() {{
         put(1, 7);
         put(2, 6);
         put(3, 5);
@@ -28,7 +28,7 @@ public class ChessBoard {
         put(8, 0);
     }};
 
-    private final HashMap<Integer, Integer> columnNumberingSeriesConversion = new HashMap<Integer, Integer>() {{
+    public static final HashMap<Integer, Integer> columnNumberingSeriesConversion = new HashMap<Integer, Integer>() {{
         put(1, 0);
         put(2, 1);
         put(3, 2);
@@ -47,6 +47,10 @@ public class ChessBoard {
         for (int row = 0; row < 8; row++) {
             this.squares[row] = Arrays.copyOf(chessBoard.squares[row], chessBoard.squares[row].length);
         }
+    }
+
+    public ChessPiece[][] getBoard() {
+        return squares;
     }
 
     /**

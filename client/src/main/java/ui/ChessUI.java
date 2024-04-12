@@ -3,9 +3,12 @@ package ui;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
 
 import static ui.EscapeSequences.*;
 
@@ -32,6 +35,8 @@ public class ChessUI {
             horizontalOrientation = horizontalHeadersOrientation2;
             verticalOrientation = verticalHeadersOrientation2;
             orientationNumber = 2;
+
+            //TODO Reverse Board
         }
 
         out.print(ERASE_SCREEN);
@@ -39,7 +44,7 @@ public class ChessUI {
         out.println();
 
         drawHeaders(out, horizontalOrientation);
-        drawChessBoard(out, verticalOrientation, orientationNumber);
+        drawChessBoard(out, verticalOrientation, orientationNumber, board);
         drawHeaders(out, horizontalOrientation);
 
         out.print(SET_BG_COLOR_BLACK);
@@ -87,7 +92,7 @@ public class ChessUI {
         out.print(EMPTY);
     }
 
-    private static void drawChessBoard(PrintStream out, String[] verticalHeaders, int orientationNumber) {
+    private static void drawChessBoard(PrintStream out, String[] verticalHeaders, int orientationNumber, ChessBoard board) {
         int alternation;
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
@@ -103,7 +108,7 @@ public class ChessUI {
                 alternation++;
 
                 out.print(EMPTY);
-                checkSquareForPiece(out, boardRow, boardCol, orientationNumber);
+                checkSquareForPiece(out, boardRow, boardCol, orientationNumber, board);
                 out.print(EMPTY);
 
                 setBlack(out);
@@ -116,33 +121,22 @@ public class ChessUI {
         }
     }
 
-    private static void checkSquareForPiece(PrintStream out, int row, int column, int orientationNumber) {
-        if (row == 0) {
-            out.print(SET_TEXT_COLOR_RED);
+    private static void checkSquareForPiece(PrintStream out, int row, int column, int orientationNumber, ChessBoard board) {
+        ChessPosition currentPosition;
+        if (orientationNumber == 1) {
+            currentPosition = new ChessPosition(reversedRowNumberingSeriesConversion.get(row), reversedColumnNumberingSeriesConversion.get(column));
+        } else {
+            currentPosition = new ChessPosition(reversedRowNumberingSeriesConversion.get(7 - row), reversedColumnNumberingSeriesConversion.get(7 - column));
+        }
 
-            if (orientationNumber == 2 && (column == 3)) {
-                out.print("Q");
-            } else if (orientationNumber == 2 && (column == 4)) {
-                out.print("K");
+        if (board.isPiece(currentPosition)) {
+            if (board.getPiece(currentPosition).getTeamColor().equals(ChessGame.TeamColor.WHITE)) {
+                out.print(SET_TEXT_COLOR_RED);
             } else {
-                out.print(tempPositioningOrientation1[column]);
+                out.print(SET_TEXT_COLOR_BLUE);
             }
-        } else if (row == 1) {
-            out.print(SET_TEXT_COLOR_RED);
-            out.print("P");
-        } else if (row == 6) {
-            out.print(SET_TEXT_COLOR_BLUE);
-            out.print("P");
-        } else if (row == 7) {
-            out.print(SET_TEXT_COLOR_BLUE);
 
-            if (orientationNumber == 2 && (column == 3)) {
-                out.print("Q");
-            } else if (orientationNumber == 2 && (column == 4)) {
-                out.print("K");
-            } else {
-                out.print(tempPositioningOrientation1[column]);
-            }
+            out.print(pieceToRepresentation.get(board.getPiece(currentPosition).getPieceType()));
         } else {
             out.print(EMPTY);
         }
@@ -160,6 +154,53 @@ public class ChessUI {
         out.print(SET_TEXT_COLOR_BLACK);
     }
 
-    private static final String[] tempPositioningOrientation1 = {"R", "N", "B", "K", "Q", "B", "N", "R"};
-    private static final String[] getTempPositioningOrientation2 = {"R", "N", "B", "Q", "K", "B", "N", "R"};
+    private static final HashMap<Integer, Integer> reversedRowNumberingSeriesConversion = new HashMap<Integer, Integer>() {{
+        put(7, 1);
+        put(6, 2);
+        put(5, 3);
+        put(4, 4);
+        put(3, 5);
+        put(2, 6);
+        put(1, 7);
+        put(0, 8);
+    }};
+
+    private static final HashMap<Integer, Integer> reversedColumnNumberingSeriesConversion = new HashMap<Integer, Integer>() {{
+        put(0, 1);
+        put(1, 2);
+        put(2, 3);
+        put(3, 4);
+        put(4, 5);
+        put(5, 6);
+        put(6, 7);
+        put(7, 8);
+    }};
+
+    private static final HashMap<ChessPiece.PieceType, String> pieceToRepresentation = new HashMap<ChessPiece.PieceType, String>() {{
+        put(ChessPiece.PieceType.KING, "K");
+        put(ChessPiece.PieceType.QUEEN, "Q");
+        put(ChessPiece.PieceType.BISHOP, "B");
+        put(ChessPiece.PieceType.KNIGHT, "N");
+        put(ChessPiece.PieceType.ROOK, "R");
+        put(ChessPiece.PieceType.PAWN, "P");
+    }};
+
+    private ChessPiece[][] boardReverser(ChessBoard board) {
+        ChessPiece[][] reversedBoard = board.getBoard().clone();
+        for (int i = 0; i < reversedBoard.length / 2; i++) {
+            ChessPiece[] temp = reversedBoard[i];
+            reversedBoard[i] = reversedBoard[reversedBoard.length - 1 - i];
+            reversedBoard[reversedBoard.length - 1 - i] = temp;
+
+            for (ChessPiece[] row : new ChessPiece[][]{ reversedBoard[i], reversedBoard[reversedBoard.length - 1 - i] })  {
+                for (int j = 0; j < row.length / 2; j++) {
+                    ChessPiece tempPiece = row[i];
+                    row[i] = row[row.length - 1 - i];
+                    row[row.length - 1 - i] = tempPiece;
+                }
+            }
+        }
+
+        return reversedBoard;
+    }
 }
