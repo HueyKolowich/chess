@@ -233,7 +233,7 @@ public class ServerFacade {
 
         ChessPosition startPosition = new ChessPosition(Integer.parseInt(String.valueOf(params[0].charAt(1))), chessCharToInt.get(params[0].charAt(0)));
         ChessPosition endPosition = new ChessPosition(Integer.parseInt(String.valueOf(params[1].charAt(1))), chessCharToInt.get(params[1].charAt(0)));
-        webSocketFacade.makeMove(this.sessionAuthToken, currentGameID, new ChessMove(startPosition, endPosition, null));
+        webSocketFacade.makeMove(this.sessionAuthToken, currentGameID, new ChessMove(startPosition, endPosition, null), Arrays.toString(params));
 
         return "";
     }

@@ -109,11 +109,13 @@ public class WebSocketHandler {
                     clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null, clientSessionGroup.playerColor())));
 
                     if (!clientSession.equals(rootSession)) {
-                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "THIS IS A NOTIFICATION THAT A CHESS MOVE WAS MADE", null)));
+                        String message = databaseAuthDao.getUsernameByAuth(userGameCommandMakeMove.getAuthString()) + " moved: " + userGameCommandMakeMove.getMoveDescription();
+
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null)));
                     }
                 }
             } else {
-                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error not authorized to make move!", null, null)));
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Not your turn to make move!", null, null)));
             }
         } catch (DataAccessException dataAccessException) {
             throw new IOException(dataAccessException.getMessage());
