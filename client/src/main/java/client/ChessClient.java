@@ -57,7 +57,13 @@ public class ChessClient implements NotificationHandler {
                 break;
             case LOAD_GAME:
                 ChessGame game = new Gson().fromJson(serverMessage.getGame(), ChessGame.class);
-                ChessUI.draw(game.getBoard(), serverMessage.getPlayerColor());
+
+                if (serverMessage.getHighlightedMoves() != null) {
+                    ChessUI.draw(game.getBoard(), serverMessage.getPlayerColor(), serverMessage.getHighlightedMoves());
+                } else {
+                    ChessUI.draw(game.getBoard(), serverMessage.getPlayerColor(), null);
+                }
+
                 serverFacade.setisInGame(true);
                 break;
             case ERROR:

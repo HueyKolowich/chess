@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
@@ -13,6 +14,7 @@ import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 
 @WebSocket
@@ -56,24 +58,24 @@ public class WebSocketHandler {
                         String usernameInSpot = databaseGameDao.checkPlayerSpotTaken(userGameCommandJoinPlayer.getGameID(), userGameCommandJoinPlayer.getPlayerColor().toString());
 
                         if ((usernameInSpot == null) || (!usernameInSpot.equals(databaseAuthDao.getUsernameByAuth(userGameCommandJoinPlayer.getAuthString())))) {
-                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (spot taken)", null, null)));
+                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (spot taken)", null, null, null)));
                         } else {
-                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, databaseGameDao.getGame(userGameCommandJoinPlayer.getGameID()), null, null, clientSessionGroup.playerColor())));
+                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, databaseGameDao.getGame(userGameCommandJoinPlayer.getGameID()), null, null, clientSessionGroup.playerColor(), null)));
                         }
                     } else {
                         String playerColor = userGameCommandJoinPlayer.getPlayerColor() != null ? userGameCommandJoinPlayer.getPlayerColor().toString() : "observer";
                         String message = databaseAuthDao.getUsernameByAuth(userGameCommandJoinPlayer.getAuthString()) + " has joined the game as " + playerColor;
 
                         if (!clientSession.equals(rootSession)) {
-                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null)));
+                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null, null)));
                         } else if (!databaseGameDao.findGame(userGameCommandJoinPlayer.getGameID())) {
-                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (no game)", null, null)));
+                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game! (no game)", null, null, null)));
                         } else {
-                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, databaseGameDao.getGame(userGameCommandJoinPlayer.getGameID()), null, null, clientSessionGroup.playerColor())));
+                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, databaseGameDao.getGame(userGameCommandJoinPlayer.getGameID()), null, null, clientSessionGroup.playerColor(), null)));
                         }
                     }
                 } catch (DataAccessException dataAccessException) {
-                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game!", null, null)));
+                    clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error with joining game!", null, null, null)));
                 }
             }
         }
@@ -96,21 +98,21 @@ public class WebSocketHandler {
                     for (SessionGrouping clientSessionGroup : sessions) {
                         Session clientSession = clientSessionGroup.session();
 
-                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null, clientSessionGroup.playerColor())));
+                        clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null, clientSessionGroup.playerColor(), null)));
 
                         if (!clientSession.equals(rootSession)) {
                             String message = databaseAuthDao.getUsernameByAuth(userGameCommandMakeMove.getAuthString()) + " moved: " + userGameCommandMakeMove.getMoveDescription();
 
-                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null)));
+                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null, null)));
                         }
                     }
                 } else {
-                    rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Not your turn to make move!", null, null)));
+                    rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Not your turn to make move!", null, null, null)));
                 }
             } catch (DataAccessException dataAccessException) {
                 throw new IOException(dataAccessException.getMessage());
             } catch (InvalidMoveException invalidMoveException) {
-                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error invalid move!", null, null)));
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error invalid move!", null, null, null)));
             }
         }
     }
@@ -122,16 +124,16 @@ public class WebSocketHandler {
             ChessGame.TeamColor rootPlayerColor = getTeamColor(userGameCommandResign.getAuthString(), userGameCommandResign.getGameID());
 
             if (databaseGameDao.checkGameStatus(userGameCommandResign.getGameID()) == 0) {
-                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "The other player has already resigned from the game!", null, null)));
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "The other player has already resigned from the game!", null, null, null)));
             } else if (rootPlayerColor != null) {
                 databaseGameDao.updateGameStatus(userGameCommandResign.getGameID());
 
                 String message = databaseAuthDao.getUsernameByAuth(userGameCommandResign.getAuthString()) + " has resigned from the game.";
                 for (SessionGrouping sessionGroup : sessions) {
-                    sessionGroup.session().getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null)));
+                    sessionGroup.session().getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null, null)));
                 }
             } else {
-                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "An observer cannot resign from the game!", null, null)));
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "An observer cannot resign from the game!", null, null, null)));
             }
         } catch (DataAccessException dataAccessException) {
             throw new IOException(dataAccessException.getMessage());
@@ -146,11 +148,11 @@ public class WebSocketHandler {
             if (sessionGroup.session().equals(rootSession)) {
                 sessionGroupToBeRemoved = sessionGroup;
                 
-                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "You have left the game.", null)));
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "You have left the game.", null, null)));
             } else {
                 try {
                     String message = databaseAuthDao.getUsernameByAuth(userGameCommandLeave.getAuthString()) + " has left the game.";
-                    sessionGroup.session().getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null)));
+                    sessionGroup.session().getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null, null)));
                 } catch (DataAccessException dataAccessException) {
                     throw new IOException(dataAccessException.getMessage());
                 }
@@ -179,9 +181,15 @@ public class WebSocketHandler {
 
         try {
             ChessGame game = new Gson().fromJson(databaseGameDao.getGame(userGameCommandRedraw.getGameID()), ChessGame.class);
-            rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null, rootSessionGroup.playerColor())));
+
+            Collection<ChessMove> highlightedMoves = null;
+            if (userGameCommandRedraw.getPosition() != null) {
+                highlightedMoves = game.validMoves(userGameCommandRedraw.getPosition());
+            }
+
+            rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null, rootSessionGroup.playerColor(), highlightedMoves)));
         } catch (DataAccessException e) {
-            rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error in redrawing the game!", null, null)));
+            rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error in redrawing the game!", null, null, null)));
         }
     }
 
@@ -209,7 +217,7 @@ public class WebSocketHandler {
         try {
             int status = databaseGameDao.checkGameStatus(gameID);
             if (status == 0 || status == -1) {
-                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "This game is over!", null, null)));
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "This game is over!", null, null, null)));
                 return false;
             }
         } catch (DataAccessException dataAccessException) {

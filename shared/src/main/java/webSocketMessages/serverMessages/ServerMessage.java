@@ -1,7 +1,9 @@
 package webSocketMessages.serverMessages;
 
 import chess.ChessGame;
+import chess.ChessMove;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -16,6 +18,7 @@ public class ServerMessage {
     String errorMessage;
     String message;
     ChessGame.TeamColor playerColor;
+    Collection<ChessMove> highlightedMoves;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -23,12 +26,13 @@ public class ServerMessage {
         NOTIFICATION
     }
 
-    public ServerMessage(ServerMessageType type, String game, String errorMessage, String message, ChessGame.TeamColor playerColor) {
+    public ServerMessage(ServerMessageType type, String game, String errorMessage, String message, ChessGame.TeamColor playerColor, Collection<ChessMove> highlightedMoves) {
         this.serverMessageType = type;
         this.game = game;
         this.errorMessage = errorMessage;
         this.message = message;
         this.playerColor = playerColor;
+        this.highlightedMoves = highlightedMoves;
     }
 
     public ServerMessageType getServerMessageType() {
@@ -48,6 +52,8 @@ public class ServerMessage {
     }
 
     public ChessGame.TeamColor getPlayerColor() { return playerColor; }
+
+    public Collection<ChessMove> getHighlightedMoves() { return highlightedMoves; }
 
     @Override
     public boolean equals(Object o) {

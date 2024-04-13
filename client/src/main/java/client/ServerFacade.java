@@ -49,6 +49,7 @@ public class ServerFacade {
                     case "move" -> move(params);
                     case "resign" -> resign();
                     case "redraw" -> redraw();
+                    case "highlight" -> highlight(params);
                     default -> inGameHelp();
                 };
             } else if (isLoggedIn) {
@@ -217,7 +218,7 @@ public class ServerFacade {
         return "";
     }
 
-    private String move(String[] params) throws IOException { //TODO Need to add functionality for promoting
+    private String move(String[] params) throws IOException {
         if (currentGameID == -1) {
             return "The game was not correctly joined... please try again\n";
         }
@@ -248,7 +249,30 @@ public class ServerFacade {
     }
 
     private String redraw() throws IOException {
-        webSocketFacade.redraw(this.sessionAuthToken, currentGameID);
+        webSocketFacade.redraw(this.sessionAuthToken, currentGameID, null);
+
+        return "";
+    }
+
+    private String highlight(String[] params) throws IOException {
+        if (currentGameID == -1) {
+            return "The game was not correctly joined... please try again\n";
+        }
+
+        if (params.length != 1) {
+            return "Incorrect amount of move arguments... please see the help command\n";
+        }
+
+        if (new String(validMoveChars).indexOf(params[0].charAt(0)) == -1) {
+            return "Incorrect formatting of position... please try again\n";
+        }
+
+        if (new String(validMoveInts).indexOf(params[0].charAt(1)) == -1) {
+            return "Incorrect formatting of position... please try again\n";
+        }
+
+        ChessPosition position = new ChessPosition(Integer.parseInt(String.valueOf(params[0].charAt(1))), chessCharToInt.get(params[0].charAt(0)));
+        webSocketFacade.redraw(this.sessionAuthToken, currentGameID, position);
 
         return "";
     }

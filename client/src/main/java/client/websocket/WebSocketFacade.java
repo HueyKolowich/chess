@@ -2,6 +2,7 @@ package client.websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
@@ -57,8 +58,8 @@ public class WebSocketFacade extends Endpoint {
         this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 
-    public void   redraw(String authToken, int gameID) throws IOException {
-        UserGameCommand userGameCommand = new UserGameCommandRedraw(authToken, gameID);
+    public void redraw(String authToken, int gameID, ChessPosition position) throws IOException {
+        UserGameCommand userGameCommand = new UserGameCommandRedraw(authToken, gameID, position);
         this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 
