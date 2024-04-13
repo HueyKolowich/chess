@@ -7,6 +7,7 @@ import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 import webSocketMessages.userCommands.UserGameCommandJoinPlayer;
 import webSocketMessages.userCommands.UserGameCommandMakeMove;
+import webSocketMessages.userCommands.UserGameCommandResign;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -46,6 +47,11 @@ public class WebSocketFacade extends Endpoint {
 
     public void makeMove(String authToken, int gameID, ChessMove move, String moveDescription) throws IOException {
         UserGameCommand userGameCommand = new UserGameCommandMakeMove(authToken, gameID, move, moveDescription);
+        this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+    }
+
+    public void resign(String authToken, int gameID) throws IOException {
+        UserGameCommand userGameCommand = new UserGameCommandResign(authToken, gameID);
         this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 

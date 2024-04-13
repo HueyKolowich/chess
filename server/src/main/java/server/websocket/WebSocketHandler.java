@@ -13,6 +13,7 @@ import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 import webSocketMessages.userCommands.UserGameCommandJoinPlayer;
 import webSocketMessages.userCommands.UserGameCommandMakeMove;
+import webSocketMessages.userCommands.UserGameCommandResign;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ public class WebSocketHandler {
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER, JOIN_OBSERVER -> joinPlayer(new Gson().fromJson(message, UserGameCommandJoinPlayer.class), session);
             case MAKE_MOVE -> makeMove(new Gson().fromJson(message, UserGameCommandMakeMove.class), session);
+            case RESIGN -> resign(new Gson().fromJson(message, UserGameCommandResign.class), session);
         }
     }
 
@@ -122,5 +124,9 @@ public class WebSocketHandler {
         } catch (InvalidMoveException invalidMoveException) {
              rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error invalid move!", null, null)));
         }
+    }
+
+    private void resign(UserGameCommandResign userGameCommandResign, Session rootSession) {
+
     }
 }

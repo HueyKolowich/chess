@@ -47,6 +47,7 @@ public class ServerFacade {
                 return switch (cmd) {
                     case "leave" -> leave();
                     case "move" -> move(params);
+                    case "resign" -> resign();
                     default -> inGameHelp();
                 };
             } else if (isLoggedIn) {
@@ -234,6 +235,12 @@ public class ServerFacade {
         ChessPosition startPosition = new ChessPosition(Integer.parseInt(String.valueOf(params[0].charAt(1))), chessCharToInt.get(params[0].charAt(0)));
         ChessPosition endPosition = new ChessPosition(Integer.parseInt(String.valueOf(params[1].charAt(1))), chessCharToInt.get(params[1].charAt(0)));
         webSocketFacade.makeMove(this.sessionAuthToken, currentGameID, new ChessMove(startPosition, endPosition, null), Arrays.toString(params));
+
+        return "";
+    }
+
+    private String resign() throws IOException {
+        webSocketFacade.resign(this.sessionAuthToken, currentGameID);
 
         return "";
     }

@@ -31,9 +31,9 @@ class DatabaseGameDaoTest {
 
     @Test
     void listGames() throws DataAccessException {
-        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9999, \"testGame\", \"PLACEHOLDER\")");
-        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9998, \"testGame\", \"PLACEHOLDER\")");
-        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9997, \"testGame\", \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, gameStatus, game) VALUES (9999, \"testGame\", 1, \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, gameStatus, game) VALUES (9998, \"testGame\", 1, \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, gameStatus, game) VALUES (9997, \"testGame\", 1, \"PLACEHOLDER\")");
 
         Assertions.assertDoesNotThrow(() -> databaseGameDao.listGames());
 
@@ -45,7 +45,7 @@ class DatabaseGameDaoTest {
     @Test
     void findGame() throws DataAccessException {
         temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
-        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9999, \"testGame\", \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, gameStatus, game) VALUES (9999, \"testGame\", 1, \"PLACEHOLDER\")");
 
         Assertions.assertTrue(databaseGameDao.findGame(9999));
 
@@ -59,7 +59,7 @@ class DatabaseGameDaoTest {
     @Test
     void addPlayer() throws DataAccessException {
         temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
-        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9999, \"testGame\", \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, gameStatus, game) VALUES (9999, \"testGame\", 1, \"PLACEHOLDER\")");
 
         Assertions.assertDoesNotThrow(() -> databaseGameDao.addPlayer("WHITE", "testUser", 9999));
         Assertions.assertDoesNotThrow(() -> databaseGameDao.addPlayer("BLACK", "testUser", 9999));
@@ -71,8 +71,8 @@ class DatabaseGameDaoTest {
     void clear() throws DataAccessException {
         temporaryTestScript("DELETE FROM game WHERE gameID = '9999'");
         temporaryTestScript("DELETE FROM game WHERE gameID = '9998'");
-        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9999, \"testGame\", \"PLACEHOLDER\")");
-        temporaryTestScript("INSERT INTO game (gameID, gameName, game) VALUES (9998, \"testGame\", \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, gameStatus, game) VALUES (9999, \"testGame\", 1, \"PLACEHOLDER\")");
+        temporaryTestScript("INSERT INTO game (gameID, gameName, gameStatus, game) VALUES (9998, \"testGame\", 1, \"PLACEHOLDER\")");
 
         Assertions.assertDoesNotThrow(() -> databaseGameDao.clear());
 

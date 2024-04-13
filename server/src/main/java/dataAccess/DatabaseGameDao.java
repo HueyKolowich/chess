@@ -21,6 +21,7 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
                 `whiteUsername` varchar(256) DEFAULT NULL,
                 `blackUsername` varchar(256) DEFAULT NULL,
                 `gameName` varchar(256) NOT NULL,
+                `gameStatus` int NOT NULL,
                 `game` longtext NOT NULL,
                 PRIMARY KEY (`gameID`),
                 INDEX (`gameName`)
@@ -41,7 +42,7 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
      */
     @Override
     public int createGame(int gameID, String gameName) throws DataAccessException {
-        String statement = "INSERT INTO game (gameID, gameName, game) VALUES (?, ?, ?)";
+        String statement = "INSERT INTO game (gameID, gameName, gameStatus, game) VALUES (?, ?, 1, ?)";
 
         ChessGame chessGame = new ChessGame();
         ChessBoard chessBoard = chessGame.getBoard();
