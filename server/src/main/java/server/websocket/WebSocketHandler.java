@@ -7,14 +7,10 @@ import dataAccess.DataAccessException;
 import dataAccess.DatabaseAuthDao;
 import dataAccess.DatabaseGameDao;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.UserGameCommand;
-import webSocketMessages.userCommands.UserGameCommandJoinPlayer;
-import webSocketMessages.userCommands.UserGameCommandMakeMove;
-import webSocketMessages.userCommands.UserGameCommandResign;
+import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -42,6 +38,7 @@ public class WebSocketHandler {
             case JOIN_PLAYER, JOIN_OBSERVER -> joinPlayer(new Gson().fromJson(message, UserGameCommandJoinPlayer.class), session);
             case MAKE_MOVE -> makeMove(new Gson().fromJson(message, UserGameCommandMakeMove.class), session);
             case RESIGN -> resign(new Gson().fromJson(message, UserGameCommandResign.class), session);
+            case LEAVE -> leave(new Gson().fromJson(message, UserGameCommandLeave.class), session);
         }
     }
 
@@ -138,6 +135,29 @@ public class WebSocketHandler {
         } catch (DataAccessException dataAccessException) {
             throw new IOException(dataAccessException.getMessage());
         }
+    }
+
+    private void leave(UserGameCommandLeave userGameCommandLeave, Session rootSession) throws IOException {
+        HashSet<SessionGrouping> sessions = ConnectionManager.connections.get(userGameCommandLeave.getGameID());
+        SessionGrouping sessionGroupToBeRemoved = null;
+
+        for (SessionGrouping sessionGroup : sessions) {
+            if (sessionGroup.session().equals(rootSession)) {
+                sessionGroupToBeRemoved = sessionGroup;
+                
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "You have left the game.", null)));
+            } else {
+                try {
+                    String message = databaseAuthDao.getUsernameByAuth(userGameCommandLeave.getAuthString()) + " has left the game.";
+                    sessionGroup.session().getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null)));
+                } catch (DataAccessException dataAccessException) {
+                    throw new IOException(dataAccessException.getMessage());
+                }
+            }
+        }
+
+        sessions.remove(sessionGroupToBeRemoved);
+        ConnectionManager.connections.put(userGameCommandLeave.getGameID(), sessions);
     }
 
     private ChessGame.TeamColor getTeamColor(String authString, int gameID) {

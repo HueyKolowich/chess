@@ -4,10 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.UserGameCommand;
-import webSocketMessages.userCommands.UserGameCommandJoinPlayer;
-import webSocketMessages.userCommands.UserGameCommandMakeMove;
-import webSocketMessages.userCommands.UserGameCommandResign;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -52,6 +49,11 @@ public class WebSocketFacade extends Endpoint {
 
     public void resign(String authToken, int gameID) throws IOException {
         UserGameCommand userGameCommand = new UserGameCommandResign(authToken, gameID);
+        this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+    }
+
+    public void leave(String authToken, int gameID) throws IOException {
+        UserGameCommand userGameCommand = new UserGameCommandLeave(authToken, gameID);
         this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 

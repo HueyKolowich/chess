@@ -207,10 +207,11 @@ public class ServerFacade {
         }
     }
 
-    private String leave() {
-        //TODO Needs to make a call to the ws/connection manager to remove its session from the set
-        //TODO Will also probably need to update currentGameID to -1;
+    private String leave() throws IOException {
+        webSocketFacade.leave(this.sessionAuthToken, currentGameID);
+
         setisInGame(false);
+        currentGameID = -1;
 
         return "";
     }
