@@ -39,6 +39,7 @@ public class WebSocketHandler {
             case MAKE_MOVE -> makeMove(new Gson().fromJson(message, UserGameCommandMakeMove.class), session);
             case RESIGN -> resign(new Gson().fromJson(message, UserGameCommandResign.class), session);
             case LEAVE -> leave(new Gson().fromJson(message, UserGameCommandLeave.class), session);
+            case REDRAW -> redraw(new Gson().fromJson(message, UserGameCommandRedraw.class), session);
         }
     }
 
@@ -158,6 +159,30 @@ public class WebSocketHandler {
 
         sessions.remove(sessionGroupToBeRemoved);
         ConnectionManager.connections.put(userGameCommandLeave.getGameID(), sessions);
+    }
+
+    private void redraw(UserGameCommandRedraw userGameCommandRedraw, Session rootSession) throws IOException {
+        HashSet<SessionGrouping> sessions = ConnectionManager.connections.get(userGameCommandRedraw.getGameID());
+
+        SessionGrouping rootSessionGroup = null;
+        if (sessions.isEmpty()) {
+            throw new IOException("There was no SessionGroup found for this client!");
+        }
+
+        for (SessionGrouping clientSessionGroup : sessions) {
+            if (clientSessionGroup.session().equals(rootSession)) {
+                rootSessionGroup = clientSessionGroup;
+            } else {
+                throw new IOException("There was no SessionGroup found for this client!");
+            }
+        }
+
+        try {
+            ChessGame game = new Gson().fromJson(databaseGameDao.getGame(userGameCommandRedraw.getGameID()), ChessGame.class);
+            rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null, rootSessionGroup.playerColor())));
+        } catch (DataAccessException e) {
+            rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error in redrawing the game!", null, null)));
+        }
     }
 
     private ChessGame.TeamColor getTeamColor(String authString, int gameID) {

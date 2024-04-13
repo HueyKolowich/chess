@@ -48,6 +48,7 @@ public class ServerFacade {
                     case "leave" -> leave();
                     case "move" -> move(params);
                     case "resign" -> resign();
+                    case "redraw" -> redraw();
                     default -> inGameHelp();
                 };
             } else if (isLoggedIn) {
@@ -242,6 +243,12 @@ public class ServerFacade {
 
     private String resign() throws IOException {
         webSocketFacade.resign(this.sessionAuthToken, currentGameID);
+
+        return "";
+    }
+
+    private String redraw() throws IOException {
+        webSocketFacade.redraw(this.sessionAuthToken, currentGameID);
 
         return "";
     }

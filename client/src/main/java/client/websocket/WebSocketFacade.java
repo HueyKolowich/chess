@@ -57,6 +57,11 @@ public class WebSocketFacade extends Endpoint {
         this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 
+    public void   redraw(String authToken, int gameID) throws IOException {
+        UserGameCommand userGameCommand = new UserGameCommandRedraw(authToken, gameID);
+        this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+    }
+
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
 }
