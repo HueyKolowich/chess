@@ -6,8 +6,8 @@ import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseAuthDao;
 import dataAccess.DatabaseGameDao;
-import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -41,7 +41,7 @@ public class WebSocketHandler {
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER, JOIN_OBSERVER -> joinPlayer(new Gson().fromJson(message, UserGameCommandJoinPlayer.class), session);
             case MAKE_MOVE -> makeMove(new Gson().fromJson(message, UserGameCommandMakeMove.class), session);
-            case RESIGN -> resign(new Gson().fromJson(message, UserGameCommandResign.class));
+            case RESIGN -> resign(new Gson().fromJson(message, UserGameCommandResign.class), session);
         }
     }
 
@@ -84,22 +84,8 @@ public class WebSocketHandler {
     private void makeMove(UserGameCommandMakeMove userGameCommandMakeMove, Session rootSession) throws IOException {
         HashSet<SessionGrouping> sessions = ConnectionManager.connections.get(userGameCommandMakeMove.getGameID());
 
-        ChessGame.TeamColor rootPlayerColor;
-
         if (checkGameStatus(rootSession, userGameCommandMakeMove.getGameID())) {
-            try {
-                String rootUsername = databaseAuthDao.getUsernameByAuth(userGameCommandMakeMove.getAuthString());
-
-                if (rootUsername.equals(databaseGameDao.checkPlayerSpotTaken(userGameCommandMakeMove.getGameID(), "WHITE"))) {
-                    rootPlayerColor = ChessGame.TeamColor.WHITE;
-                } else if (rootUsername.equals(databaseGameDao.checkPlayerSpotTaken(userGameCommandMakeMove.getGameID(), "BLACK"))) {
-                    rootPlayerColor = ChessGame.TeamColor.BLACK;
-                } else {
-                    rootPlayerColor = null;
-                }
-            } catch (DataAccessException e) {
-                rootPlayerColor = null;
-            }
+            ChessGame.TeamColor rootPlayerColor = getTeamColor(userGameCommandMakeMove.getAuthString(), userGameCommandMakeMove.getGameID());
 
             try {
                 ChessGame game = new Gson().fromJson(databaseGameDao.getGame(userGameCommandMakeMove.getGameID()), ChessGame.class);
@@ -131,6 +117,49 @@ public class WebSocketHandler {
         }
     }
 
+    private void resign(UserGameCommandResign userGameCommandResign, Session rootSession) throws IOException {
+        HashSet<SessionGrouping> sessions = ConnectionManager.connections.get(userGameCommandResign.getGameID());
+
+        try {
+            ChessGame.TeamColor rootPlayerColor = getTeamColor(userGameCommandResign.getAuthString(), userGameCommandResign.getGameID());
+
+            if (databaseGameDao.checkGameStatus(userGameCommandResign.getGameID()) == 0) {
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "The other player has already resigned from the game!", null, null)));
+            } else if (rootPlayerColor != null) {
+                databaseGameDao.updateGameStatus(userGameCommandResign.getGameID());
+
+                String message = databaseAuthDao.getUsernameByAuth(userGameCommandResign.getAuthString()) + " has resigned from the game.";
+                for (SessionGrouping sessionGroup : sessions) {
+                    sessionGroup.session().getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null)));
+                }
+            } else {
+                rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "An observer cannot resign from the game!", null, null)));
+            }
+        } catch (DataAccessException dataAccessException) {
+            throw new IOException(dataAccessException.getMessage());
+        }
+    }
+
+    private ChessGame.TeamColor getTeamColor(String authString, int gameID) {
+        ChessGame.TeamColor rootPlayerColor;
+        String rootUsername;
+
+        try {
+            rootUsername = databaseAuthDao.getUsernameByAuth(authString);
+
+            if (rootUsername.equals(databaseGameDao.checkPlayerSpotTaken(gameID, "WHITE"))) {
+                rootPlayerColor = ChessGame.TeamColor.WHITE;
+            } else if (rootUsername.equals(databaseGameDao.checkPlayerSpotTaken(gameID, "BLACK"))) {
+                rootPlayerColor = ChessGame.TeamColor.BLACK;
+            } else {
+                rootPlayerColor = null;
+            }
+        } catch (DataAccessException dataAccessException) {
+            rootPlayerColor = null;
+        }
+        return rootPlayerColor;
+    }
+
     private boolean checkGameStatus(Session rootSession, int gameID) throws IOException {
         try {
             int status = databaseGameDao.checkGameStatus(gameID);
@@ -143,20 +172,5 @@ public class WebSocketHandler {
         }
 
         return true;
-    }
-
-    private void resign(UserGameCommandResign userGameCommandResign) throws IOException {
-        HashSet<SessionGrouping> sessions = ConnectionManager.connections.get(userGameCommandResign.getGameID());
-
-        try {
-            databaseGameDao.updateGameStatus(userGameCommandResign.getGameID());
-
-            String message = databaseAuthDao.getUsernameByAuth(userGameCommandResign.getAuthString()) + " has resigned from the game.";
-            for (SessionGrouping sessionGroup : sessions) {
-                sessionGroup.session().getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, message, null)));
-            }
-        } catch (DataAccessException dataAccessException) {
-            throw new IOException(dataAccessException.getMessage());
-        }
     }
 }
