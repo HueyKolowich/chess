@@ -189,7 +189,7 @@ public class ChessBoard {
         if (columnNumberingSeriesConversion.get(position.getColumn()) == 0) {
             if (rowNumberingSeriesConversion.get(position.getRow()) == 0) {
                 return 1;
-            } else if (rowNumberingSeriesConversion.get(position.getColumn()) == 7) {
+            } else if (rowNumberingSeriesConversion.get(position.getRow()) == 7) {
                 return 7;
             } else { return 8; }
         }
