@@ -53,7 +53,7 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
 
         executeUpdate(statement, gameID, gameName, game);
 
-        if (selectItem("SELECT gameID FROM game WHERE gameID=?", (Integer) gameID)) {
+        if (selectItem("SELECT gameID FROM game WHERE gameID=?", gameID)) {
             return gameID;
         } else { throw new DataAccessException("Game was not created!"); }
     }
@@ -62,6 +62,31 @@ public class DatabaseGameDao extends DatabaseDao implements GameDao {
         String statement = "UPDATE game SET game=? WHERE gameID=?";
 
         executeUpdate(statement, game, gameID);
+    }
+
+    public void updateGameStatus(int gameID) throws DataAccessException {
+        String statement = "UPDATE game SET gameStatus=0 WHERE gameID=?";
+
+        executeUpdate(statement, gameID);
+    }
+
+    public int checkGameStatus(int gameID) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String statement = "SELECT gameStatus FROM game WHERE gameID=?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setInt(1, gameID);
+
+                preparedStatement.executeQuery();
+
+                ResultSet resultSet = preparedStatement.getResultSet();
+                if (resultSet.next()) {
+                    return resultSet.getInt("gameStatus");
+                } else { return -1; }
+            }
+        } catch (SQLException sqlException) {
+            throw new DataAccessException(String.format("Unable to get DB connection: %s", sqlException.getMessage()));
+        }
     }
 
     /**
