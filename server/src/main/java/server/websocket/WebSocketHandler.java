@@ -100,6 +100,23 @@ public class WebSocketHandler {
 
                         clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null, clientSessionGroup.playerColor(), null)));
 
+                        if (game.isInCheck(ChessGame.TeamColor.BLACK) || game.isInCheck(ChessGame.TeamColor.WHITE)) {
+                            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                                databaseGameDao.updateGameStatus(userGameCommandMakeMove.getGameID());
+                                clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "White is in checkmate!", null, null)));
+                            } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                                databaseGameDao.updateGameStatus(userGameCommandMakeMove.getGameID());
+                                clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "Black is in checkmate!", null, null)));
+                            } else {
+                                clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "Check!", null, null)));
+                            }
+                        }
+
+                        if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                            databaseGameDao.updateGameStatus(userGameCommandMakeMove.getGameID());
+                            clientSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, null, null, "Game is in stalemate!", null, null)));
+                        }
+
                         if (!clientSession.equals(rootSession)) {
                             String message = databaseAuthDao.getUsernameByAuth(userGameCommandMakeMove.getAuthString()) + " moved: " + userGameCommandMakeMove.getMoveDescription();
 
