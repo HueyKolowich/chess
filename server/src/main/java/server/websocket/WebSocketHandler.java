@@ -191,8 +191,6 @@ public class WebSocketHandler {
         for (SessionGrouping clientSessionGroup : sessions) {
             if (clientSessionGroup.session().equals(rootSession)) {
                 rootSessionGroup = clientSessionGroup;
-            } else {
-                throw new IOException("There was no SessionGroup found for this client!");
             }
         }
 
@@ -204,6 +202,7 @@ public class WebSocketHandler {
                 highlightedMoves = game.validMoves(userGameCommandRedraw.getPosition());
             }
 
+            assert rootSessionGroup != null;
             rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game), null, null, rootSessionGroup.playerColor(), highlightedMoves)));
         } catch (DataAccessException e) {
             rootSession.getRemote().sendString(new Gson().toJson(new ServerMessage(ServerMessage.ServerMessageType.ERROR, null, "Error in redrawing the game!", null, null, null)));
